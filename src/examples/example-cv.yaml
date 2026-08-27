@@ -1,0 +1,67 @@
+cv:
+  name: John Doe
+  headline: Software Engineer
+  location: San Francisco, CA
+  email: john.doe@email.com
+  website: https://johndoe.com
+  social_networks:
+    - network: LinkedIn
+      username: johndoe
+    - network: GitHub
+      username: johndoe
+  sections:
+    Summary:
+      - Experienced software engineer with 8+ years building scalable systems.
+    Experience:
+      - company: Tech Corp
+        position: Senior Software Engineer
+        start_date: 2021-06
+        end_date: present
+        location: San Francisco, CA
+        highlights:
+          - Led team of 5 engineers to build distributed systems serving 2M+ users
+          - Reduced API latency by 40% through caching and query optimization
+          - Mentored 3 junior developers and conducted weekly code reviews
+      - company: Startup Inc
+        position: Software Engineer
+        start_date: 2018-01
+        end_date: 2021-05
+        location: Remote
+        highlights:
+          - Built microservices architecture from scratch using Go and Kubernetes
+          - Implemented CI/CD pipeline reducing deployment time by 60%
+    Education:
+      - institution: University of California, Berkeley
+        area: Computer Science
+        degree: BS
+        start_date: 2014
+        end_date: 2018
+        location: Berkeley, CA
+        highlights:
+          - "GPA: 3.8/4.0"
+          - Dean's List all semesters
+    Projects:
+      - name: OpenSource Tool
+        start_date: 2022
+        end_date: present
+        summary: A CLI tool for developers
+        highlights:
+          - 1,200+ GitHub stars
+          - Used by 50+ companies in production
+    Skills:
+      - label: Languages
+        details: Python, Go, TypeScript, Rust, Java
+      - label: Frameworks
+        details: React, Node.js, FastAPI, Gin
+      - label: Infrastructure
+        details: Docker, Kubernetes, AWS, GCP, Terraform
+design:
+  theme: classic
+  page:
+    size: a4
+locale:
+  language: english
+settings:
+  current_date: today
+  bold_keywords: []
+  pdf_title: NAME - CV
