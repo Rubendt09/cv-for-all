@@ -90,7 +90,7 @@ export function Header() {
   };
 
   return (
-    <header className="flex items-center justify-between border-b border-line bg-paper-raised px-4 py-3">
+    <header className="flex flex-col gap-2 border-b border-line bg-paper-raised px-3 py-2 sm:flex-row sm:items-center sm:justify-between sm:px-4 sm:py-3">
       <div className="flex items-center gap-3">
         <div className="flex h-9 w-9 items-center justify-center rounded border border-line bg-paper-sunken">
           <span className="font-mono text-xs font-semibold text-signal">
@@ -109,7 +109,7 @@ export function Header() {
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 sm:gap-2">
         <TemplateSelector
           value={selectedTheme}
           onChange={handleThemeChange}
@@ -125,24 +125,30 @@ export function Header() {
 
         <button
           onClick={handleImportClick}
-          className="rounded border border-line px-3 py-1.5 text-sm font-medium text-ink-soft transition hover:border-ink-faint hover:text-ink"
+          title="Import YAML"
+          className="rounded border border-line px-2 py-1 text-xs font-medium text-ink-soft transition hover:border-ink-faint hover:text-ink sm:px-3 sm:py-1.5 sm:text-sm"
         >
-          Import YAML
+          <span className="sm:hidden">Import</span>
+          <span className="hidden sm:inline">Import YAML</span>
         </button>
 
         <button
           onClick={handleDownloadYaml}
-          className="rounded border border-line px-3 py-1.5 text-sm font-medium text-ink-soft transition hover:border-ink-faint hover:text-ink"
+          title="Download YAML"
+          className="rounded border border-line px-2 py-1 text-xs font-medium text-ink-soft transition hover:border-ink-faint hover:text-ink sm:px-3 sm:py-1.5 sm:text-sm"
         >
-          Download YAML
+          <span className="sm:hidden">YAML</span>
+          <span className="hidden sm:inline">Download YAML</span>
         </button>
 
         <button
           onClick={handleDownloadPdf}
           disabled={!pdfUrl}
-          className="rounded bg-signal px-4 py-1.5 text-sm font-semibold text-signal-contrast transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
+          title="Download PDF"
+          className="rounded bg-signal px-3 py-1 text-xs font-semibold text-signal-contrast transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40 sm:px-4 sm:py-1.5 sm:text-sm"
         >
-          Download PDF
+          <span className="sm:hidden">PDF</span>
+          <span className="hidden sm:inline">Download PDF</span>
         </button>
       </div>
     </header>

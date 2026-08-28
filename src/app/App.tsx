@@ -5,7 +5,7 @@
  *   Desktop: Header bar + split pane (Editor | Preview)
  *   Mobile: Header bar + tabs (Edit | Preview)
  */
-import { useEffect, useCallback, useRef } from "react";
+import { useEffect, useCallback, useRef, useState } from "react";
 import { Header } from "@/components/Header/Header";
 import { YamlEditor } from "@/components/Editor/YamlEditor";
 import { ErrorPanel } from "@/components/Editor/ErrorPanel";
@@ -28,6 +28,7 @@ export function App() {
   const isCompiling = useCvStore((s) => s.isCompiling);
   const errors = useCvStore((s) => s.errors);
   const compileTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [mobileTab, setMobileTab] = useState<"edit" | "preview">("edit");
 
   // Load from localStorage or example on mount
   useEffect(() => {
@@ -100,18 +101,51 @@ export function App() {
   return (
     <div className="flex h-full flex-col bg-paper">
       <Header />
+      {/* Mobile tab bar */}
+      <div className="flex border-b border-line bg-paper-raised md:hidden">
+        <button
+          type="button"
+          onClick={() => setMobileTab("edit")}
+          className={`flex-1 px-4 py-2 text-sm font-medium ${
+            mobileTab === "edit"
+              ? "border-b-2 border-signal text-ink"
+              : "text-ink-soft"
+          }`}
+        >
+          Edit
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileTab("preview")}
+          className={`flex-1 px-4 py-2 text-sm font-medium ${
+            mobileTab === "preview"
+              ? "border-b-2 border-signal text-ink"
+              : "text-ink-soft"
+          }`}
+        >
+          Preview
+        </button>
+      </div>
       <div className="flex flex-1 overflow-hidden">
         {/* Editor panel */}
-        <div className="flex w-1/2 flex-col border-r border-line">
+        <div
+          className={`flex w-full flex-col border-r border-line md:w-1/2 ${
+            mobileTab === "edit" ? "flex" : "hidden md:flex"
+          }`}
+        >
           <YamlEditor value={yamlString} onChange={setYaml} />
           {errors.length > 0 && <ErrorPanel errors={errors} />}
         </div>
         {/* Preview panel */}
-        <div className="flex w-1/2 flex-col">
+        <div
+          className={`flex w-full flex-col md:w-1/2 ${
+            mobileTab === "preview" ? "flex" : "hidden md:flex"
+          }`}
+        >
           <PdfPreview isCompiling={isCompiling} />
         </div>
       </div>
-      <footer className="flex flex-wrap items-center justify-center gap-x-2 border-t border-line bg-paper-raised px-4 py-1 font-mono text-[11px] text-ink-faint">
+      <footer className="flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 border-t border-line bg-paper-raised px-3 py-1.5 font-mono text-[10px] text-ink-faint sm:px-4 sm:text-[11px]">
         <span># independent project, compatible with RenderCV YAML</span>
         <span aria-hidden="true">&middot;</span>
         <a
