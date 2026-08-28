@@ -25,6 +25,7 @@
     "js-yaml": "^5.4.1",
     "marked": "^18.0.11",
     "monaco-editor": "^0.56.0",
+    "pdfjs-dist": "^6.2.108",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "zod": "^4.4.3",
