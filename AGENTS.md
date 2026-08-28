@@ -13,6 +13,7 @@ Inspired by RenderCV. All processing happens in-browser — no server, full priv
 - @myriaddreamin/typst.ts (WASM) for client-side Typst → PDF compilation
 - Zustand for state management
 - Vitest for testing
+- vite-plugin-pwa (Workbox) for PWA: installable, offline-capable, auto-update
 
 ## Commands
 ```bash
@@ -24,6 +25,7 @@ npm run test:watch   # Watch mode tests
 npm run lint         # ESLint
 npm run format       # Prettier format
 npm run typecheck    # TypeScript type checking (tsc --noEmit)
+npm run generate-icons  # Regenerate PWA icons from public/favicon.svg
 ```
 
 ## Architecture
@@ -83,3 +85,19 @@ Tests are in `tests/` and mirror the source structure:
 The YAML format is fully compatible with RenderCV (https://rendercv.com).
 9 entry types, 9 themes, locale support, and the @preview/rendercv Typst package
 are all supported.
+
+## PWA (Progressive Web App)
+The app is an installable, offline-capable PWA via `vite-plugin-pwa` (Workbox).
+- **Manifest + service worker** are generated automatically at build time; the
+  SW is also registered in dev (`devOptions.enabled`).
+- **Auto-update**: `registerType: "autoUpdate"` + `injectRegister: "auto"` —
+  new versions are precached in the background and applied on reload, with no
+  user-facing UI.
+- **Offline**: all build assets are precached, including the Typst WASM
+  compiler (~28MB) and the pdf.js worker (~1.2MB). This requires
+  `workbox.maximumFileSizeToCacheInBytes` to be raised to 30MB (Workbox's
+  default 2MB cap would silently skip the WASM and break offline compilation).
+- **Icons** live in `public/icons/` and are generated from `public/favicon.svg`
+  by `npm run generate-icons` (uses `sharp`). Re-run after changing the favicon.
+- **iOS**: `apple-touch-icon` is linked in `index.html` (iOS ignores the
+  manifest for the home-screen icon).
