@@ -47,13 +47,17 @@ src/
     generator.ts           # Full Typst document orchestrator
   pdf/
     generator.ts           # Full pipeline: YAML → Typst → PDF
+  utils/
+    keywordDatabase.ts     # Curated tech keyword database for Job Matcher
+    jobMatcher.ts          # Job description ↔ CV compatibility matching
   store/
     cvStore.ts             # Zustand global store
   components/
     Header/                # App header (logo, template selector, downloads)
     Editor/                # YAML editor + error panel
-    Preview/               # PDF preview
+    Preview/               # PDF preview (pdf.js canvas renderer)
     TemplateSelector/      # Theme dropdown
+    JobMatcher/            # Job description matcher panel + results
   examples/
     example-cv.yaml        # Example CV
 ```
@@ -72,6 +76,7 @@ Tests are in `tests/` and mirror the source structure:
 - `tests/yaml/` — parser and entry detection tests
 - `tests/typst/` — markdown-to-typst conversion tests
 - `tests/templates/` — Typst source generation tests
+- `tests/utils/` — job matcher and utility tests
 - `tests/sanity.test.ts` — basic sanity checks
 
 ## RenderCV Compatibility

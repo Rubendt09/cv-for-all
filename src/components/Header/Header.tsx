@@ -23,6 +23,7 @@ export function Header() {
   const importYaml = useCvStore((s) => s.importYaml);
   const isCompiling = useCvStore((s) => s.isCompiling);
   const errors = useCvStore((s) => s.errors);
+  const jobMatcherResults = useCvStore((s) => s.jobMatcherResults);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const statusLine = isCompiling
@@ -35,6 +36,17 @@ export function Header() {
     : errors.length > 0
       ? "text-error"
       : "text-success";
+
+  const matcherLine = jobMatcherResults
+    ? ` \u00b7 match ${jobMatcherResults.compatibilityPercentage}%`
+    : "";
+  const matcherColor = jobMatcherResults
+    ? jobMatcherResults.compatibilityPercentage >= 75
+      ? "text-success"
+      : jobMatcherResults.compatibilityPercentage >= 50
+        ? "text-signal"
+        : "text-error"
+    : "";
 
   const handleDownloadPdf = async () => {
     // If we already have a compiled PDF URL, download from there
@@ -105,6 +117,9 @@ export function Header() {
             className={`hidden font-mono text-[11px] leading-none sm:block ${statusColor}`}
           >
             {statusLine}
+            {matcherLine && (
+              <span className={matcherColor}>{matcherLine}</span>
+            )}
           </p>
         </div>
       </div>

@@ -10,6 +10,7 @@ import { Header } from "@/components/Header/Header";
 import { YamlEditor } from "@/components/Editor/YamlEditor";
 import { ErrorPanel } from "@/components/Editor/ErrorPanel";
 import { PdfPreview } from "@/components/Preview/PdfPreview";
+import { JobMatcherPanel } from "@/components/JobMatcher/JobMatcherPanel";
 import { useCvStore } from "@/store/cvStore";
 import { parseAndValidate } from "@/yaml/parser";
 import { generatePdfFromYaml } from "@/pdf/generator";
@@ -28,7 +29,9 @@ export function App() {
   const isCompiling = useCvStore((s) => s.isCompiling);
   const errors = useCvStore((s) => s.errors);
   const compileTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [mobileTab, setMobileTab] = useState<"edit" | "preview">("edit");
+  const [mobileTab, setMobileTab] = useState<"edit" | "preview" | "matcher">(
+    "edit",
+  );
 
   // Load from localStorage or example on mount
   useEffect(() => {
@@ -125,11 +128,22 @@ export function App() {
         >
           Preview
         </button>
+        <button
+          type="button"
+          onClick={() => setMobileTab("matcher")}
+          className={`flex-1 px-4 py-2 text-sm font-medium ${
+            mobileTab === "matcher"
+              ? "border-b-2 border-signal text-ink"
+              : "text-ink-soft"
+          }`}
+        >
+          Matcher
+        </button>
       </div>
       <div className="flex flex-1 overflow-hidden">
         {/* Editor panel */}
         <div
-          className={`flex w-full flex-col border-r border-line md:w-1/2 ${
+          className={`flex w-full flex-col border-r border-line md:w-1/3 ${
             mobileTab === "edit" ? "flex" : "hidden md:flex"
           }`}
         >
@@ -138,11 +152,19 @@ export function App() {
         </div>
         {/* Preview panel */}
         <div
-          className={`flex w-full flex-col md:w-1/2 ${
+          className={`flex w-full flex-col border-r border-line md:w-1/3 ${
             mobileTab === "preview" ? "flex" : "hidden md:flex"
           }`}
         >
           <PdfPreview isCompiling={isCompiling} />
+        </div>
+        {/* Job Matcher panel */}
+        <div
+          className={`flex w-full flex-col md:w-1/3 ${
+            mobileTab === "matcher" ? "flex" : "hidden md:flex"
+          }`}
+        >
+          <JobMatcherPanel />
         </div>
       </div>
       <footer className="flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 border-t border-line bg-paper-raised px-3 py-1.5 font-mono text-[10px] text-ink-faint sm:px-4 sm:text-[11px]">

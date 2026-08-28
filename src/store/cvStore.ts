@@ -8,8 +8,10 @@
 import { create } from "zustand";
 import type { ParseError } from "@/yaml/parser";
 import type { ThemeName } from "@/types/cv";
+import type { JobMatcherResult } from "@/utils/jobMatcher";
 
 const STORAGE_KEY = "cv-for-all-yaml";
+const JOB_DESCRIPTION_KEY = "cv-for-all-job-description";
 
 interface CvStoreState {
   /** Current YAML content in the editor. */
@@ -30,6 +32,10 @@ interface CvStoreState {
   compilerReady: boolean;
   /** Generated Typst source (for debugging). */
   typstSource: string | null;
+  /** Pasted job description for the Job Matcher feature. */
+  jobDescription: string | null;
+  /** Latest Job Matcher result (null if not yet analyzed). */
+  jobMatcherResults: JobMatcherResult | null;
 
   // Actions
   setYaml: (yaml: string) => void;
@@ -41,6 +47,8 @@ interface CvStoreState {
   setTheme: (theme: ThemeName) => void;
   setCompilerReady: (ready: boolean) => void;
   setTypstSource: (source: string | null) => void;
+  setJobDescription: (description: string | null) => void;
+  setJobMatcherResults: (results: JobMatcherResult | null) => void;
   loadExample: (yaml: string) => void;
   importYaml: (yaml: string) => void;
   saveToLocalStorage: () => void;
@@ -57,6 +65,8 @@ export const useCvStore = create<CvStoreState>((set, get) => ({
   selectedTheme: "classic",
   compilerReady: false,
   typstSource: null,
+  jobDescription: null,
+  jobMatcherResults: null,
 
   setYaml: (yaml) => {
     set({ yamlString: yaml });
@@ -76,6 +86,21 @@ export const useCvStore = create<CvStoreState>((set, get) => ({
   setTheme: (theme) => set({ selectedTheme: theme }),
   setCompilerReady: (ready) => set({ compilerReady: ready }),
   setTypstSource: (source) => set({ typstSource: source }),
+
+  setJobDescription: (description) => {
+    set({ jobDescription: description });
+    try {
+      if (description) {
+        localStorage.setItem(JOB_DESCRIPTION_KEY, description);
+      } else {
+        localStorage.removeItem(JOB_DESCRIPTION_KEY);
+      }
+    } catch {
+      // Ignore localStorage errors
+    }
+  },
+
+  setJobMatcherResults: (results) => set({ jobMatcherResults: results }),
 
   loadExample: (yaml) => {
     set({ yamlString: yaml });
@@ -100,6 +125,10 @@ export const useCvStore = create<CvStoreState>((set, get) => ({
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         set({ yamlString: saved });
+      }
+      const savedJob = localStorage.getItem(JOB_DESCRIPTION_KEY);
+      if (savedJob) {
+        set({ jobDescription: savedJob });
       }
     } catch {
       // Ignore localStorage errors
