@@ -31,6 +31,7 @@ export function YamlEditor({ value, onChange }: YamlEditorProps) {
         options={{
           minimap: { enabled: false },
           fontSize: 14,
+          fontFamily: "'IBM Plex Mono', ui-monospace, monospace",
           lineNumbers: "on",
           scrollBeyondLastLine: false,
           wordWrap: "on",

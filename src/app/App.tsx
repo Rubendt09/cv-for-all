@@ -98,11 +98,11 @@ export function App() {
   }, [yamlString, compilePdf]);
 
   return (
-    <div className="flex h-full flex-col bg-slate-50 dark:bg-slate-950">
+    <div className="flex h-full flex-col bg-paper">
       <Header />
       <div className="flex flex-1 overflow-hidden">
         {/* Editor panel */}
-        <div className="flex w-1/2 flex-col border-r border-slate-200 dark:border-slate-800">
+        <div className="flex w-1/2 flex-col border-r border-line">
           <YamlEditor value={yamlString} onChange={setYaml} />
           {errors.length > 0 && <ErrorPanel errors={errors} />}
         </div>
@@ -111,23 +111,23 @@ export function App() {
           <PdfPreview isCompiling={isCompiling} />
         </div>
       </div>
-      <footer className="flex flex-wrap items-center justify-center gap-x-2 border-t border-slate-200 bg-white px-4 py-1 text-[11px] text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
-        <span>Independent project compatible with RenderCV YAML.</span>
-        <span aria-hidden="true">·</span>
+      <footer className="flex flex-wrap items-center justify-center gap-x-2 border-t border-line bg-paper-raised px-4 py-1 font-mono text-[11px] text-ink-faint">
+        <span># independent project, compatible with RenderCV YAML</span>
+        <span aria-hidden="true">&middot;</span>
         <a
           href="https://github.com/rendercv/rendercv"
           target="_blank"
           rel="noreferrer"
-          className="underline hover:text-slate-700 dark:hover:text-slate-200"
+          className="underline hover:text-ink"
         >
           RenderCV (MIT)
         </a>
-        <span aria-hidden="true">·</span>
+        <span aria-hidden="true">&middot;</span>
         <a
           href="https://fontawesome.com"
           target="_blank"
           rel="noreferrer"
-          className="underline hover:text-slate-700 dark:hover:text-slate-200"
+          className="underline hover:text-ink"
         >
           Icons © Fonticons, Inc. (CC BY 4.0)
         </a>

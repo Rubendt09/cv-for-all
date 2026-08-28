@@ -21,7 +21,20 @@ export function Header() {
   const selectedTheme = useCvStore((s) => s.selectedTheme);
   const setTheme = useCvStore((s) => s.setTheme);
   const importYaml = useCvStore((s) => s.importYaml);
+  const isCompiling = useCvStore((s) => s.isCompiling);
+  const errors = useCvStore((s) => s.errors);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const statusLine = isCompiling
+    ? "# compiling\u2026"
+    : errors.length > 0
+      ? `# ${errors.length} ${errors.length === 1 ? "error" : "errors"}`
+      : "# 0 errors \u00b7 ready to compile";
+  const statusColor = isCompiling
+    ? "text-ink-faint"
+    : errors.length > 0
+      ? "text-error"
+      : "text-success";
 
   const handleDownloadPdf = async () => {
     // If we already have a compiled PDF URL, download from there
@@ -77,24 +90,26 @@ export function Header() {
   };
 
   return (
-    <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
+    <header className="flex items-center justify-between border-b border-line bg-paper-raised px-4 py-3">
       <div className="flex items-center gap-3">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 dark:bg-slate-100">
-          <span className="font-mono text-sm font-bold text-sky-400 dark:text-sky-600">
-            CV
+        <div className="flex h-9 w-9 items-center justify-center rounded border border-line bg-paper-sunken">
+          <span className="font-mono text-xs font-semibold text-signal">
+            [cv]
           </span>
         </div>
         <div>
-          <h1 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-            CV for all
+          <h1 className="text-base font-semibold tracking-tight text-ink">
+            cv-for-all
           </h1>
-          <p className="hidden text-xs text-slate-500 dark:text-slate-400 sm:block">
-            Free YAML CV Generator
+          <p
+            className={`hidden font-mono text-[11px] leading-none sm:block ${statusColor}`}
+          >
+            {statusLine}
           </p>
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         <TemplateSelector
           value={selectedTheme}
           onChange={handleThemeChange}
@@ -110,14 +125,14 @@ export function Header() {
 
         <button
           onClick={handleImportClick}
-          className="rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+          className="rounded border border-line px-3 py-1.5 text-sm font-medium text-ink-soft transition hover:border-ink-faint hover:text-ink"
         >
           Import YAML
         </button>
 
         <button
           onClick={handleDownloadYaml}
-          className="rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+          className="rounded border border-line px-3 py-1.5 text-sm font-medium text-ink-soft transition hover:border-ink-faint hover:text-ink"
         >
           Download YAML
         </button>
@@ -125,7 +140,7 @@ export function Header() {
         <button
           onClick={handleDownloadPdf}
           disabled={!pdfUrl}
-          className="rounded-md bg-sky-600 px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded bg-signal px-4 py-1.5 text-sm font-semibold text-signal-contrast transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
         >
           Download PDF
         </button>
