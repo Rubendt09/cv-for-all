@@ -22,6 +22,12 @@ import { getRenderCVSections } from "@/yaml/parser";
 import { markdownToTypst } from "./markdown-to-typst";
 import { cleanUrl } from "./string-utils";
 import { svgIconPaths } from "./svg-icons";
+import { translateSectionTitle } from "./section-translations";
+import {
+  resolveLocaleStrings,
+  resolveMonthAbbreviations,
+  resolveMonthNames,
+} from "./locale-translations";
 
 // =============================================================================
 // Date utilities
@@ -56,9 +62,12 @@ function buildDatePlaceholders(date: Date, locale: Locale): Record<string, strin
   const month = date.getMonth() + 1;
   const day = date.getDate();
   const year = date.getFullYear();
+  const language = locale.language ?? "english";
+  const monthNames = resolveMonthNames(locale.month_names, language);
+  const monthAbbreviations = resolveMonthAbbreviations(locale.month_abbreviations, language);
   return {
-    MONTH_NAME: locale.month_names?.[month - 1] ?? String(month),
-    MONTH_ABBREVIATION: locale.month_abbreviations?.[month - 1] ?? String(month),
+    MONTH_NAME: monthNames[month - 1] ?? String(month),
+    MONTH_ABBREVIATION: monthAbbreviations[month - 1] ?? String(month),
     MONTH: String(month),
     MONTH_IN_TWO_DIGITS: String(month).padStart(2, "0"),
     DAY: String(day),
@@ -98,7 +107,7 @@ function formatDateRange(
 
   let endStr: string;
   if (endDate === "present") {
-    endStr = locale.present ?? "present";
+    endStr = resolveLocaleStrings(locale).present;
   } else if (typeof endDate === "number") {
     endStr = String(endDate);
   } else {
@@ -122,7 +131,7 @@ function formatSingleDate(
     return String(date);
   }
   if (date === "present") {
-    return locale.present ?? "present";
+    return resolveLocaleStrings(locale).present;
   }
   try {
     const d = getDateObject(date);
@@ -146,7 +155,8 @@ function computeTimeSpanString(
     const endYear = getDateObject(endDate, currentDate).getFullYear();
     const years = endYear - startYear;
     const howManyYears = years < 2 ? "1" : String(years);
-    const localeYears = years < 2 ? (locale.year ?? "year") : (locale.years ?? "years");
+    const tr = resolveLocaleStrings(locale);
+    const localeYears = years < 2 ? tr.year : tr.years;
     return substitutePlaceholders(timeSpanTemplate, {
       HOW_MANY_YEARS: howManyYears,
       YEARS: localeYears,
@@ -166,10 +176,11 @@ function computeTimeSpanString(
   howManyYears += Math.floor(howManyMonths / 12);
   howManyMonths %= 12;
 
+  const tr = resolveLocaleStrings(locale);
   const localeYears =
-    howManyYears === 0 ? "" : howManyYears === 1 ? (locale.year ?? "year") : (locale.years ?? "years");
+    howManyYears === 0 ? "" : howManyYears === 1 ? tr.year : tr.years;
   const localeMonths =
-    howManyMonths === 0 ? "" : howManyMonths === 1 ? (locale.month ?? "month") : (locale.months ?? "months");
+    howManyMonths === 0 ? "" : howManyMonths === 1 ? tr.month : tr.months;
 
   return substitutePlaceholders(timeSpanTemplate, {
     HOW_MANY_YEARS: howManyYears === 0 ? "" : String(howManyYears),
@@ -719,7 +730,7 @@ function renderTopNote(
 ): string {
   const placeholders: Record<string, string> = {
     CURRENT_DATE: dateObjectToString(currentDate, locale, singleDateTemplate),
-    LAST_UPDATED: locale.last_updated ?? "Last updated in",
+    LAST_UPDATED: resolveLocaleStrings(locale).last_updated,
     NAME: name ?? "",
     ...buildDatePlaceholders(currentDate, locale),
   };
@@ -856,10 +867,14 @@ export function processModel(model: RenderCVModel): ProcessedModel {
 
     const processedTitle =
       applyStringProcessors(section.title, keywords, true) ?? section.title;
+    const localizedTitle = translateSectionTitle(
+      processedTitle,
+      locale.language ?? "english",
+    );
 
     return {
       ...section,
-      title: processedTitle,
+      title: localizedTitle,
       entries: processedEntries,
     };
   });

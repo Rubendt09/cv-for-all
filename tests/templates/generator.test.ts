@@ -105,4 +105,203 @@ design:
       expect(typst).toContain("#show: rendercv.with(");
     }
   });
+
+  it("should translate section titles when locale.language is spanish", () => {
+    const yaml = `
+cv:
+  name: Test User
+  sections:
+    Summary:
+      - A brief summary
+    Experience:
+      - company: Tech Corp
+        position: Engineer
+        start_date: 2020-01
+    Education:
+      - institution: MIT
+        degree: PhD
+        area: CS
+        start_date: 2018
+        end_date: 2022
+    Skills:
+      - label: Languages
+        details: Python, Go
+    Awards:
+      - label: Best Engineer
+        details: 2023
+    Certifications:
+      - label: AWS
+        details: 2022
+design:
+  theme: classic
+locale:
+  language: spanish
+`;
+    const parseResult = parseYaml(yaml);
+    const modelResult = renderCVModelSchema.safeParse(parseResult.data);
+    const model = modelResult.data as RenderCVModel;
+    const typst = generateTypstSource(model);
+
+    expect(typst).toContain("== Resumen");
+    expect(typst).toContain("== Experiencia");
+    expect(typst).toContain("== Educación");
+    expect(typst).toContain("== Habilidades");
+    expect(typst).toContain("== Premios");
+    expect(typst).toContain("== Certificaciones");
+    // English titles should not appear
+    expect(typst).not.toContain("== Summary");
+    expect(typst).not.toContain("== Experience");
+    expect(typst).not.toContain("== Skills");
+  });
+
+  it("should keep English section titles when locale.language is english", () => {
+    const yaml = `
+cv:
+  name: Test User
+  sections:
+    Skills:
+      - label: Languages
+        details: Python
+design:
+  theme: classic
+locale:
+  language: english
+`;
+    const parseResult = parseYaml(yaml);
+    const modelResult = renderCVModelSchema.safeParse(parseResult.data);
+    const model = modelResult.data as RenderCVModel;
+    const typst = generateTypstSource(model);
+
+    expect(typst).toContain("== Skills");
+    expect(typst).not.toContain("== Habilidades");
+  });
+
+  it("should translate the top-note 'Last updated in' when locale.language is spanish", () => {
+    const yaml = `
+cv:
+  name: Test User
+design:
+  theme: classic
+locale:
+  language: spanish
+`;
+    const parseResult = parseYaml(yaml);
+    const modelResult = renderCVModelSchema.safeParse(parseResult.data);
+    const model = modelResult.data as RenderCVModel;
+    const typst = generateTypstSource(model);
+
+    expect(typst).toContain("Actualizado en");
+    expect(typst).not.toContain("Last updated in");
+  });
+
+  it("should keep English 'Last updated in' when locale.language is english", () => {
+    const yaml = `
+cv:
+  name: Test User
+design:
+  theme: classic
+locale:
+  language: english
+`;
+    const parseResult = parseYaml(yaml);
+    const modelResult = renderCVModelSchema.safeParse(parseResult.data);
+    const model = modelResult.data as RenderCVModel;
+    const typst = generateTypstSource(model);
+
+    expect(typst).toContain("Last updated in");
+  });
+
+  it("should translate 'present' in date ranges when locale.language is spanish", () => {
+    const yaml = `
+cv:
+  name: Test User
+  sections:
+    Experience:
+      - company: Tech Corp
+        position: Engineer
+        start_date: 2020-01
+        end_date: present
+design:
+  theme: classic
+locale:
+  language: spanish
+`;
+    const parseResult = parseYaml(yaml);
+    const modelResult = renderCVModelSchema.safeParse(parseResult.data);
+    const model = modelResult.data as RenderCVModel;
+    const typst = generateTypstSource(model);
+
+    expect(typst).toContain("presente");
+  });
+
+  it("should respect an explicit last_updated override even with spanish locale", () => {
+    const yaml = `
+cv:
+  name: Test User
+design:
+  theme: classic
+locale:
+  language: spanish
+  last_updated: Mi custom text
+`;
+    const parseResult = parseYaml(yaml);
+    const modelResult = renderCVModelSchema.safeParse(parseResult.data);
+    const model = modelResult.data as RenderCVModel;
+    const typst = generateTypstSource(model);
+
+    expect(typst).toContain("Mi custom text");
+    expect(typst).not.toContain("Actualizado en");
+  });
+
+  it("should translate month abbreviations in entry dates when locale.language is spanish", () => {
+    const yaml = `
+cv:
+  name: Test User
+  sections:
+    Experience:
+      - company: Tech Corp
+        position: Engineer
+        start_date: 2021-06-15
+        end_date: 2022-08-15
+design:
+  theme: classic
+locale:
+  language: spanish
+`;
+    const parseResult = parseYaml(yaml);
+    const modelResult = renderCVModelSchema.safeParse(parseResult.data);
+    const model = modelResult.data as RenderCVModel;
+    const typst = generateTypstSource(model);
+
+    // Spanish month abbreviations for June and August
+    expect(typst).toContain("jun");
+    expect(typst).toContain("ago");
+    // English abbreviations should not appear
+    expect(typst).not.toContain("June 2021");
+    expect(typst).not.toContain("Aug 2022");
+  });
+
+  it("should keep English month abbreviations when locale.language is english", () => {
+    const yaml = `
+cv:
+  name: Test User
+  sections:
+    Experience:
+      - company: Tech Corp
+        position: Engineer
+        start_date: 2021-06-15
+        end_date: 2022-08-15
+design:
+  theme: classic
+locale:
+  language: english
+`;
+    const parseResult = parseYaml(yaml);
+    const modelResult = renderCVModelSchema.safeParse(parseResult.data);
+    const model = modelResult.data as RenderCVModel;
+    const typst = generateTypstSource(model);
+
+    expect(typst).toContain("June 2021");
+    expect(typst).toContain("Aug 2022");
+  });
 });
