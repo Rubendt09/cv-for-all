@@ -42,14 +42,20 @@ export function getDateObject(
     return new Date(date, 0, 1);
   }
   const s = String(date);
-  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
-    return new Date(s);
+  const fullDateMatch = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (fullDateMatch) {
+    return new Date(
+      Number(fullDateMatch[1]),
+      Number(fullDateMatch[2]) - 1,
+      Number(fullDateMatch[3]),
+    );
   }
-  if (/^\d{4}-\d{2}$/.test(s)) {
-    return new Date(`${s}-01`);
+  const yearMonthMatch = s.match(/^(\d{4})-(\d{2})$/);
+  if (yearMonthMatch) {
+    return new Date(Number(yearMonthMatch[1]), Number(yearMonthMatch[2]) - 1, 1);
   }
   if (/^\d{4}$/.test(s)) {
-    return new Date(`${s}-01-01`);
+    return new Date(Number(s), 0, 1);
   }
   if (s === "present") {
     return currentDate;

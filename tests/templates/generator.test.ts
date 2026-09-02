@@ -261,8 +261,8 @@ cv:
     Experience:
       - company: Tech Corp
         position: Engineer
-        start_date: 2021-06-15
-        end_date: 2022-08-15
+        start_date: 2026-01
+        end_date: 2026-08-15
 design:
   theme: classic
 locale:
@@ -273,12 +273,12 @@ locale:
     const model = modelResult.data as RenderCVModel;
     const typst = generateTypstSource(model);
 
-    // Spanish month abbreviations for June and August
-    expect(typst).toContain("jun");
-    expect(typst).toContain("ago");
+    // Spanish month abbreviations for January and August
+    expect(typst).toContain("ene 2026");
+    expect(typst).toContain("ago 2026");
     // English abbreviations should not appear
-    expect(typst).not.toContain("June 2021");
-    expect(typst).not.toContain("Aug 2022");
+    expect(typst).not.toContain("Jan 2026");
+    expect(typst).not.toContain("Aug 2026");
   });
 
   it("should keep English month abbreviations when locale.language is english", () => {
