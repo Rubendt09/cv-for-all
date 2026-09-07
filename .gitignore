@@ -18,6 +18,7 @@ Skill
 # Build
 dist
 dist-ssr
+dev-dist
 *.local
 
 # Editor
