@@ -8,7 +8,8 @@ Inspired by RenderCV. All processing happens in-browser — no server, full priv
 - Vite + React + TypeScript
 - Tailwind CSS for styling
 - Zod for YAML schema validation
-- js-yaml for YAML parsing
+- js-yaml for YAML parsing (read/validate pipeline)
+- yaml (eemeli) for surgical YAML document editing (form → YAML writes)
 - Monaco Editor for the YAML editor
 - @myriaddreamin/typst.ts (WASM) for client-side Typst → PDF compilation
 - Zustand for state management
@@ -34,8 +35,9 @@ src/
   types/cv.ts              # TypeScript data models (RenderCV-compatible)
   yaml/
     schema.ts              # Zod schema (ported from RenderCV Pydantic models)
-    parser.ts              # YAML → validate → RenderCVModel pipeline
+    parser.ts              # YAML → validate → RenderCVModel pipeline (js-yaml)
     entry-detection.ts     # Automatic entry type detection from fields
+    doc-editor.ts          # Surgical YAML document editor (yaml/eemeli) — form writes
   typst/
     markdown-to-typst.ts   # Markdown → Typst markup converter
     string-utils.ts        # String utilities (escape, clean_url, etc.)
@@ -53,10 +55,11 @@ src/
     keywordDatabase.ts     # Curated tech keyword database for Job Matcher
     jobMatcher.ts          # Job description ↔ CV compatibility matching
   store/
-    cvStore.ts             # Zustand global store
+    cvStore.ts             # Zustand global store (yamlString, editorMode, etc.)
   components/
     Header/                # App header (logo, template selector, downloads)
-    Editor/                # YAML editor + error panel
+    Editor/                # EditorPanel (tabs: Form | YAML) + YamlEditor + ErrorPanel
+    Form/                  # CV form editor (CvForm, cards, EntryEditor, fields)
     Preview/               # PDF preview (pdf.js canvas renderer)
     TemplateSelector/      # Theme dropdown
     JobMatcher/            # Job description matcher panel + results
@@ -72,10 +75,27 @@ src/
 - **Entry type detection**: Entry types are inferred from fields, not declared.
   Each type has "characteristic fields" unique to it.
 - **Path aliases**: `@/` maps to `src/` (configured in tsconfig.json and vite.config.ts).
+- **YAML is the single source of truth**: `yamlString` in the Zustand store is
+  the canonical CV data. The form does NOT keep a separate object model — it
+  patches the YAML document in place via `src/yaml/doc-editor.ts` and calls
+  `setYaml()`, reusing the existing validate → compile pipeline.
+- **Two YAML libraries, strict frontier**: `js-yaml` reads/validates
+  (`parser.ts`); `yaml` (eemeli) writes via `doc-editor.ts` using its `Document`
+  API to preserve comments, key order, and formatting. Never mix them in the
+  same direction.
+- **Form ↔ YAML sync**: form fields keep local state and only re-seed from the
+  YAML when not focused (or when `externalYamlRevision` changes), avoiding
+  cursor jumps from the round-trip re-serialization.
+- **Editor modes**: `editorMode: "form" | "yaml"` is persisted in localStorage
+  (defaults to `form`). In form mode the editor widens to 1/2 and the Matcher
+  panel collapses to a strip; in YAML mode all three panels are 1/3.
+- **Aliases/anchors**: if `cv:` contains anchors, aliases, or merge keys, the
+  form falls back to read-only with a banner to avoid corrupting the YAML.
 
 ## Testing
 Tests are in `tests/` and mirror the source structure:
-- `tests/yaml/` — parser and entry detection tests
+- `tests/yaml/` — parser, entry detection, doc-editor, and theme tests
+- `tests/components/` — React component tests (CvForm, Testing Library)
 - `tests/typst/` — markdown-to-typst conversion tests
 - `tests/templates/` — Typst source generation tests
 - `tests/utils/` — job matcher and utility tests

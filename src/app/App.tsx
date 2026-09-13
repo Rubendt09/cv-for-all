@@ -2,13 +2,15 @@
  * Main application component.
  *
  * Layout:
- *   Desktop: Header bar + split pane (Editor | Preview)
- *   Mobile: Header bar + tabs (Edit | Preview)
+ *   Desktop: Header bar + split pane (Editor | Preview | Matcher)
+ *   Mobile: Header bar + tabs (Edit | Preview | Matcher)
+ *
+ * In form mode the editor widens to 1/2 and the Matcher panel collapses
+ * to a thin strip (reopened on demand).
  */
 import { useEffect, useCallback, useRef, useState } from "react";
 import { Header } from "@/components/Header/Header";
-import { YamlEditor } from "@/components/Editor/YamlEditor";
-import { ErrorPanel } from "@/components/Editor/ErrorPanel";
+import { EditorPanel } from "@/components/Editor/EditorPanel";
 import { PdfPreview } from "@/components/Preview/PdfPreview";
 import { JobMatcherPanel } from "@/components/JobMatcher/JobMatcherPanel";
 import { useCvStore } from "@/store/cvStore";
@@ -27,7 +29,8 @@ export function App() {
   const setCompilerReady = useCvStore((s) => s.setCompilerReady);
   const loadFromLocalStorage = useCvStore((s) => s.loadFromLocalStorage);
   const isCompiling = useCvStore((s) => s.isCompiling);
-  const errors = useCvStore((s) => s.errors);
+  const matcherCollapsed = useCvStore((s) => s.matcherCollapsed);
+  const setMatcherCollapsed = useCvStore((s) => s.setMatcherCollapsed);
   const compileTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [mobileTab, setMobileTab] = useState<"edit" | "preview" | "matcher">(
     "edit",
@@ -141,31 +144,56 @@ export function App() {
         </button>
       </div>
       <div className="flex flex-1 overflow-hidden">
-        {/* Editor panel */}
+        {/* Editor panel — widens to 1/2 when matcher is collapsed */}
         <div
-          className={`flex w-full flex-col border-r border-line md:w-1/3 ${
+          className={`flex w-full flex-col border-r border-line md:w-1/2 ${
             mobileTab === "edit" ? "flex" : "hidden md:flex"
-          }`}
+          } ${!matcherCollapsed ? "md:w-1/3" : ""}`}
         >
-          <YamlEditor value={yamlString} onChange={setYaml} />
-          {errors.length > 0 && <ErrorPanel errors={errors} />}
+          <EditorPanel />
         </div>
         {/* Preview panel */}
         <div
-          className={`flex w-full flex-col border-r border-line md:w-1/3 ${
+          className={`flex w-full flex-col border-r border-line md:w-1/2 ${
             mobileTab === "preview" ? "flex" : "hidden md:flex"
-          }`}
+          } ${!matcherCollapsed ? "md:w-1/3" : ""}`}
         >
           <PdfPreview isCompiling={isCompiling} />
         </div>
-        {/* Job Matcher panel */}
-        <div
-          className={`flex w-full flex-col md:w-1/3 ${
-            mobileTab === "matcher" ? "flex" : "hidden md:flex"
-          }`}
-        >
-          <JobMatcherPanel />
-        </div>
+        {/* Job Matcher panel — on mobile always shown via the Matcher tab;
+            on desktop it collapses to a strip in form mode. */}
+        {matcherCollapsed ? (
+          <>
+            {/* Mobile: full panel driven by the Matcher tab (collapsed state
+                only applies on desktop) */}
+            <div
+              className={`flex w-full flex-col md:hidden ${
+                mobileTab === "matcher" ? "flex" : "hidden"
+              }`}
+            >
+              <JobMatcherPanel />
+            </div>
+            {/* Desktop: collapsed strip */}
+            <div className="hidden md:flex md:w-8 md:flex-col md:items-center md:justify-start md:border-l md:border-line md:bg-paper-raised md:py-2">
+              <button
+                type="button"
+                onClick={() => setMatcherCollapsed(false)}
+                title="Show Job Matcher"
+                className="rounded border border-line px-1 py-2 text-[10px] text-ink-soft transition hover:border-signal hover:text-signal"
+              >
+                <span className="[writing-mode:vertical-rl]">Matcher</span>
+              </button>
+            </div>
+          </>
+        ) : (
+          <div
+            className={`flex w-full flex-col md:w-1/3 ${
+              mobileTab === "matcher" ? "flex" : "hidden md:flex"
+            }`}
+          >
+            <JobMatcherPanel />
+          </div>
+        )}
       </div>
       <footer className="flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 border-t border-line bg-paper-raised px-3 py-1.5 font-mono text-[10px] text-ink-faint sm:px-4 sm:text-[11px]">
         <span># independent project, compatible with RenderCV YAML</span>

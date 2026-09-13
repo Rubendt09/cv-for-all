@@ -12,6 +12,9 @@ import type { JobMatcherResult } from "@/utils/jobMatcher";
 
 const STORAGE_KEY = "cv-for-all-yaml";
 const JOB_DESCRIPTION_KEY = "cv-for-all-job-description";
+const EDITOR_MODE_KEY = "cv-for-all-editor-mode";
+
+export type EditorMode = "form" | "yaml";
 
 interface CvStoreState {
   /** Current YAML content in the editor. */
@@ -36,6 +39,16 @@ interface CvStoreState {
   jobDescription: string | null;
   /** Latest Job Matcher result (null if not yet analyzed). */
   jobMatcherResults: JobMatcherResult | null;
+  /** Active editor mode: form or yaml. */
+  editorMode: EditorMode;
+  /** Whether the Job Matcher panel is collapsed (form mode uses the space). */
+  matcherCollapsed: boolean;
+  /**
+   * Incremented whenever the YAML is replaced by an external source
+   * (import, example, localStorage load). Form inputs use this to know
+   * when to re-seed from the YAML even if they're not focused.
+   */
+  externalYamlRevision: number;
 
   // Actions
   setYaml: (yaml: string) => void;
@@ -49,6 +62,8 @@ interface CvStoreState {
   setTypstSource: (source: string | null) => void;
   setJobDescription: (description: string | null) => void;
   setJobMatcherResults: (results: JobMatcherResult | null) => void;
+  setEditorMode: (mode: EditorMode) => void;
+  setMatcherCollapsed: (collapsed: boolean) => void;
   loadExample: (yaml: string) => void;
   importYaml: (yaml: string) => void;
   saveToLocalStorage: () => void;
@@ -67,6 +82,9 @@ export const useCvStore = create<CvStoreState>((set, get) => ({
   typstSource: null,
   jobDescription: null,
   jobMatcherResults: null,
+  editorMode: "form",
+  matcherCollapsed: true,
+  externalYamlRevision: 0,
 
   setYaml: (yaml) => {
     set({ yamlString: yaml });
@@ -102,13 +120,26 @@ export const useCvStore = create<CvStoreState>((set, get) => ({
 
   setJobMatcherResults: (results) => set({ jobMatcherResults: results }),
 
+  setEditorMode: (mode) => {
+    // Auto-collapse the Matcher in form mode (editor widens to 1/2);
+    // expand it again in YAML mode (back to 1/3 each).
+    set({ editorMode: mode, matcherCollapsed: mode === "form" });
+    try {
+      localStorage.setItem(EDITOR_MODE_KEY, mode);
+    } catch {
+      // Ignore localStorage errors
+    }
+  },
+
+  setMatcherCollapsed: (collapsed) => set({ matcherCollapsed: collapsed }),
+
   loadExample: (yaml) => {
-    set({ yamlString: yaml });
+    set({ yamlString: yaml, externalYamlRevision: get().externalYamlRevision + 1 });
     get().saveToLocalStorage();
   },
 
   importYaml: (yaml) => {
-    set({ yamlString: yaml });
+    set({ yamlString: yaml, externalYamlRevision: get().externalYamlRevision + 1 });
     get().saveToLocalStorage();
   },
 
@@ -124,11 +155,18 @@ export const useCvStore = create<CvStoreState>((set, get) => ({
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        set({ yamlString: saved });
+        set({
+          yamlString: saved,
+          externalYamlRevision: get().externalYamlRevision + 1,
+        });
       }
       const savedJob = localStorage.getItem(JOB_DESCRIPTION_KEY);
       if (savedJob) {
         set({ jobDescription: savedJob });
+      }
+      const savedMode = localStorage.getItem(EDITOR_MODE_KEY);
+      if (savedMode === "form" || savedMode === "yaml") {
+        set({ editorMode: savedMode, matcherCollapsed: savedMode === "form" });
       }
     } catch {
       // Ignore localStorage errors
