@@ -52,4 +52,29 @@ describe("CvForm", () => {
     expect(screen.getByText("Education")).toBeTruthy();
     result.unmount();
   });
+
+  it("renders the PDF Design card and writes design options to the YAML", () => {
+    const result = render(<CvForm />);
+    // The design card is collapsed by default — open it
+    fireEvent.click(screen.getByText("PDF Design"));
+    // The Page group is open by default; "Show footer" defaults to true
+    const checkbox = screen
+      .getByText("Show footer")
+      .closest("label")!
+      .querySelector("input")! as HTMLInputElement;
+    expect(checkbox.checked).toBe(true);
+    fireEvent.click(checkbox);
+    expect(useCvStore.getState().yamlString).toContain("show_footer: false");
+    result.unmount();
+  });
+
+  it("changes the theme from the design card", () => {
+    const result = render(<CvForm />);
+    fireEvent.click(screen.getByText("PDF Design"));
+    // First combobox in the card is the theme selector
+    const themeSelect = screen.getAllByRole("combobox")[0];
+    fireEvent.change(themeSelect, { target: { value: "ink" } });
+    expect(useCvStore.getState().yamlString).toContain("theme: ink");
+    result.unmount();
+  });
 });

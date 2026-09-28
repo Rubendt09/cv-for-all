@@ -180,32 +180,29 @@ function nodeToValue(node: unknown): unknown {
 // =============================================================================
 
 /**
- * Walk the `cv:` subtree and report whether any anchor, alias or merge key
- * is present. Editing such nodes via the form is unsafe, so the caller can
- * fall back to read-only mode.
+ * Report whether a node subtree contains any anchor, alias or merge key.
+ * Editing such nodes via the form is unsafe, so callers can fall back to
+ * read-only mode.
  */
-export function hasAliasesInCv(doc: Document): boolean {
-  const cv = getMapIn(doc, ["cv"]);
-  if (!cv) return false;
-
+function containsAliases(node: unknown): boolean {
   let found = false;
-  function walk(node: unknown): void {
+  function walk(n: unknown): void {
     if (found) return;
-    if (node === null || node === undefined) return;
+    if (n === null || n === undefined) return;
     // Alias node — unsafe to edit
-    if (isAlias(node)) {
+    if (isAlias(n)) {
       found = true;
       return;
     }
-    if (isScalar(node)) {
+    if (isScalar(n)) {
       // Anchored scalar
-      if ((node as Scalar).anchor) {
+      if ((n as Scalar).anchor) {
         found = true;
       }
       return;
     }
-    if (isPair(node)) {
-      const pair = node as Pair;
+    if (isPair(n)) {
+      const pair = n as Pair;
       // Merge key (<<:)
       if (isScalar(pair.key) && (pair.key as Scalar).value === "<<") {
         found = true;
@@ -215,8 +212,8 @@ export function hasAliasesInCv(doc: Document): boolean {
       walk(pair.value);
       return;
     }
-    if (isMap(node) || isSeq(node)) {
-      const coll = node as YAMLMap | YAMLSeq;
+    if (isMap(n) || isSeq(n)) {
+      const coll = n as YAMLMap | YAMLSeq;
       // Anchored collection
       if (coll.anchor) {
         found = true;
@@ -228,8 +225,25 @@ export function hasAliasesInCv(doc: Document): boolean {
       }
     }
   }
-  walk(cv);
+  walk(node);
   return found;
+}
+
+/**
+ * Walk the `cv:` subtree and report whether any anchor, alias or merge key
+ * is present.
+ */
+export function hasAliasesInCv(doc: Document): boolean {
+  const cv = getMapIn(doc, ["cv"]);
+  return cv !== null && containsAliases(cv);
+}
+
+/**
+ * Same check for the `design:` subtree.
+ */
+export function hasAliasesInDesign(doc: Document): boolean {
+  const design = getMapIn(doc, ["design"]);
+  return design !== null && containsAliases(design);
 }
 
 // =============================================================================
@@ -326,6 +340,20 @@ export function getSections(doc: Document): SectionInfo[] {
 }
 
 /**
+ * Read the `design:` map as a plain JS object. Returns {} if absent or not
+ * a map. Values are whatever is literally in the YAML — schema/theme
+ * defaults are NOT applied here (the form resolves them itself).
+ */
+export function getDesign(doc: Document): Record<string, unknown> {
+  const design = getMapIn(doc, ["design"]);
+  if (!design) return {};
+  const v = nodeToValue(design);
+  return v !== null && typeof v === "object" && !Array.isArray(v)
+    ? (v as Record<string, unknown>)
+    : {};
+}
+
+/**
  * Read all field values of an entry as a flat record of strings / string[].
  * Used by the form to seed inputs. Non-scalar fields are returned as their
  * YAML string representation so they're visible but not edited as scalars.
@@ -367,29 +395,81 @@ export function readEntryFields(
 // =============================================================================
 
 /**
- * Set a scalar value at a path. Empty string deletes the key. Missing
- * intermediate maps are created lazily. Returns the new YAML string, or
- * null on failure.
+ * Set a scalar value at a path (string, boolean or number). Empty string
+ * deletes the key. Missing intermediate maps are created lazily. Returns
+ * the new YAML string, or null on failure.
  */
 export function setScalar(
   yaml: string,
   path: (string | number)[],
-  value: string,
+  value: string | boolean | number,
 ): string | null {
   if (path.length === 0) return null;
   const { doc, error } = loadDoc(yaml);
   if (error || !doc) return null;
 
-  const trimmed = value.trim();
-  if (trimmed === "") {
-    return deletePath(yaml, path);
+  if (typeof value === "string") {
+    value = value.trim();
+    if (value === "") {
+      return deletePath(yaml, path);
+    }
   }
 
   const parentPath = path.slice(0, -1);
   const lastKey = path[path.length - 1];
   const parent = ensureMapIn(doc, parentPath);
   if (!parent) return null;
-  parent.set(lastKey, trimmed);
+  parent.set(lastKey, value);
+  return docToString(doc);
+}
+
+const FONT_FAMILY_KEYS = [
+  "body",
+  "name",
+  "headline",
+  "connections",
+  "section_titles",
+] as const;
+
+/**
+ * Set the font family for a single area (body, name, headline, connections,
+ * section_titles) under `design.typography.font_family`. The schema allows
+ * `font_family` to be either a scalar (applies to all areas) or a map — if
+ * the YAML currently has a scalar, it is first expanded into a map so the
+ * other areas keep their value. Empty value deletes the key (and the map
+ * itself if it becomes empty). Returns the new YAML string, or null.
+ */
+export function setFontFamily(
+  yaml: string,
+  area: string,
+  value: string,
+): string | null {
+  const { doc, error } = loadDoc(yaml);
+  if (error || !doc) return null;
+
+  const typography = ensureMapIn(doc, ["design", "typography"]);
+  if (!typography) return null;
+
+  const existing = typography.get("font_family", true);
+  let map: YAMLMap;
+  if (isMap(existing)) {
+    map = existing;
+  } else {
+    map = new YAMLMap();
+    const base = scalarToString(existing);
+    if (base !== null && base !== "") {
+      for (const k of FONT_FAMILY_KEYS) map.set(k, base);
+    }
+    typography.set("font_family", map);
+  }
+
+  const trimmed = value.trim();
+  if (trimmed === "") {
+    map.delete(area);
+    if (map.items.length === 0) typography.delete("font_family");
+  } else {
+    map.set(area, trimmed);
+  }
   return docToString(doc);
 }
 

@@ -6,11 +6,14 @@ import {
   loadDoc,
   docToString,
   hasAliasesInCv,
+  hasAliasesInDesign,
   getCvBasics,
   getSocialNetworks,
   getSections,
+  getDesign,
   readEntryFields,
   setScalar,
+  setFontFamily,
   deletePath,
   setStringList,
   addSection,
@@ -413,6 +416,86 @@ describe("social networks", () => {
     expect(out).not.toBeNull();
     const { doc } = loadDoc(out!);
     expect(getSocialNetworks(doc!)).toHaveLength(1);
+  });
+});
+
+describe("design section", () => {
+  it("getDesign reads the design map as a plain object", () => {
+    const { doc } = loadDoc(EXAMPLE);
+    const design = getDesign(doc!);
+    expect(design.theme).toBe("classic");
+    expect((design.page as Record<string, unknown>).size).toBe("a4");
+  });
+
+  it("getDesign returns {} when design is absent", () => {
+    const { doc } = loadDoc("cv:\n  name: John\n");
+    expect(getDesign(doc!)).toEqual({});
+  });
+
+  it("hasAliasesInDesign detects aliases under design:", () => {
+    const { doc } = loadDoc(EXAMPLE);
+    expect(hasAliasesInDesign(doc!)).toBe(false);
+    const withAlias = loadDoc(
+      "design:\n  colors: &c\n    body: black\n  extra: *c\n",
+    );
+    expect(hasAliasesInDesign(withAlias.doc!)).toBe(true);
+  });
+
+  it("setScalar writes booleans as YAML booleans (not quoted strings)", () => {
+    const out = setScalar(EXAMPLE, ["design", "page", "show_footer"], false);
+    expect(out).not.toBeNull();
+    expect(out).toContain("show_footer: false");
+    expect(out).not.toContain("'false'");
+    const { doc } = loadDoc(out!);
+    const design = getDesign(doc!);
+    expect((design.page as Record<string, unknown>).show_footer).toBe(false);
+    // Still passes schema validation (which requires a real boolean)
+    expect(isValidYaml(out!)).toBe(true);
+  });
+
+  it("setScalar creates the design map when absent", () => {
+    const out = setScalar("cv:\n  name: John\n", ["design", "theme"], "ink");
+    expect(out).not.toBeNull();
+    expect(out).toContain("design:");
+    expect(out).toContain("theme: ink");
+    expect(isValidYaml(out!)).toBe(true);
+  });
+
+  it("setFontFamily creates a map when font_family is absent", () => {
+    const out = setFontFamily(EXAMPLE, "name", "Raleway");
+    expect(out).not.toBeNull();
+    const { doc } = loadDoc(out!);
+    const design = getDesign(doc!);
+    const ff = (design.typography as Record<string, unknown>)
+      .font_family as Record<string, unknown>;
+    expect(ff.name).toBe("Raleway");
+    expect(isValidYaml(out!)).toBe(true);
+  });
+
+  it("setFontFamily expands a scalar font_family into a map", () => {
+    const yaml = `cv:
+  name: John
+design:
+  typography:
+    font_family: Lato
+`;
+    const out = setFontFamily(yaml, "body", "Ubuntu");
+    expect(out).not.toBeNull();
+    const { doc } = loadDoc(out!);
+    const design = getDesign(doc!);
+    const ff = (design.typography as Record<string, unknown>)
+      .font_family as Record<string, unknown>;
+    expect(ff.body).toBe("Ubuntu");
+    expect(ff.name).toBe("Lato");
+    expect(ff.section_titles).toBe("Lato");
+    expect(isValidYaml(out!)).toBe(true);
+  });
+
+  it("setFontFamily deletes the key (and empty map) when value is empty", () => {
+    const yaml = `design:\n  typography:\n    font_family:\n      body: Lato\n`;
+    const out = setFontFamily(yaml, "body", "");
+    expect(out).not.toBeNull();
+    expect(out).not.toContain("font_family");
   });
 });
 

@@ -12,6 +12,7 @@ interface StringListFieldProps {
   onChange: (values: string[]) => void;
   label?: string;
   placeholder?: string;
+  hint?: string;
   error?: string;
   id?: string;
   /** Minimum number of items to always show (default 1). */
@@ -23,6 +24,7 @@ export function StringListField({
   onChange,
   label,
   placeholder,
+  hint,
   error,
   id,
   minItems = 1,
@@ -136,7 +138,11 @@ export function StringListField({
       >
         + Add item
       </button>
-      {error && <span className="text-[11px] text-error">{error}</span>}
+      {error ? (
+        <span className="text-[11px] text-error">{error}</span>
+      ) : hint ? (
+        <span className="text-[11px] text-ink-faint">{hint}</span>
+      ) : null}
     </div>
   );
 }

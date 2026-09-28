@@ -9,6 +9,7 @@ import { loadDoc, hasAliasesInCv } from "@/yaml/doc-editor";
 import { BasicsCard } from "./BasicsCard";
 import { ConnectionsCard } from "./ConnectionsCard";
 import { SectionsCard } from "./SectionCard";
+import { DesignCard } from "./DesignCard";
 
 export function CvForm() {
   const yamlString = useCvStore((s) => s.yamlString);
@@ -52,6 +53,7 @@ export function CvForm() {
         <BasicsCard />
         <ConnectionsCard />
         <SectionsCard />
+        <DesignCard />
       </div>
     </div>
   );
