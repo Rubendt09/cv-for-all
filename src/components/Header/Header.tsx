@@ -105,35 +105,49 @@ export function Header() {
   };
 
   return (
-    <header className="flex flex-col gap-2 border-b border-line bg-paper-raised px-3 py-2 sm:flex-row sm:items-center sm:justify-between sm:px-4 sm:py-3">
-      <div className="flex items-center gap-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded border border-line bg-paper-sunken">
-          <span className="font-mono text-xs font-semibold text-signal">
-            [cv]
-          </span>
+    <header className="flex flex-col gap-2 border-b border-line bg-paper-raised px-3 py-2 sm:flex-row sm:items-center sm:justify-between sm:px-4 sm:py-3 w-full max-w-full overflow-hidden">
+      {/* Top bar on mobile / left side on desktop */}
+      <div className="flex items-center justify-between sm:justify-start sm:gap-3">
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded border border-line bg-paper-sunken sm:h-9 sm:w-9 shrink-0">
+            <span className="font-mono text-xs font-semibold text-signal">
+              [cv]
+            </span>
+          </div>
+          <div>
+            <h1 className="text-sm font-semibold tracking-tight text-ink sm:text-base leading-tight">
+              cv-for-all
+            </h1>
+            <p
+              className={`hidden font-mono text-[11px] leading-none sm:block ${statusColor}`}
+            >
+              {statusLine}
+              {matcherLine && (
+                <span className={matcherColor}>{matcherLine}</span>
+              )}
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-base font-semibold tracking-tight text-ink">
-            cv-for-all
-          </h1>
-          <p
-            className={`hidden font-mono text-[11px] leading-none sm:block ${statusColor}`}
-          >
-            {statusLine}
-            {matcherLine && (
-              <span className={matcherColor}>{matcherLine}</span>
-            )}
-          </p>
+
+        {/* Mobile-only language selector */}
+        <div className="sm:hidden">
+          <LanguageSelector id="language-select-mobile" />
         </div>
       </div>
 
-      <div className="flex items-center gap-1.5 sm:gap-2">
-        <LanguageSelector />
+      {/* Bottom bar on mobile / right side on desktop */}
+      <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto min-w-0">
+        {/* Desktop-only language selector */}
+        <div className="hidden sm:block">
+          <LanguageSelector id="language-select-desktop" />
+        </div>
 
-        <TemplateSelector
-          value={selectedTheme}
-          onChange={handleThemeChange}
-        />
+        <div className="flex-1 sm:flex-initial min-w-0">
+          <TemplateSelector
+            value={selectedTheme}
+            onChange={handleThemeChange}
+          />
+        </div>
 
         <input
           ref={fileInputRef}
@@ -146,7 +160,7 @@ export function Header() {
         <button
           onClick={handleImportClick}
           title={t("Import YAML")}
-          className="rounded border border-line px-2 py-1 text-xs font-medium text-ink-soft transition hover:border-ink-faint hover:text-ink sm:px-3 sm:py-1.5 sm:text-sm"
+          className="shrink-0 rounded border border-line px-2 py-1 text-xs font-medium text-ink-soft transition hover:border-ink-faint hover:text-ink sm:px-3 sm:py-1.5 sm:text-sm"
         >
           <span className="sm:hidden">{t("Import")}</span>
           <span className="hidden sm:inline">{t("Import YAML")}</span>
@@ -155,7 +169,7 @@ export function Header() {
         <button
           onClick={handleDownloadYaml}
           title={t("Download YAML")}
-          className="rounded border border-line px-2 py-1 text-xs font-medium text-ink-soft transition hover:border-ink-faint hover:text-ink sm:px-3 sm:py-1.5 sm:text-sm"
+          className="shrink-0 rounded border border-line px-2 py-1 text-xs font-medium text-ink-soft transition hover:border-ink-faint hover:text-ink sm:px-3 sm:py-1.5 sm:text-sm"
         >
           <span className="sm:hidden">YAML</span>
           <span className="hidden sm:inline">{t("Download YAML")}</span>
@@ -165,7 +179,7 @@ export function Header() {
           onClick={handleDownloadPdf}
           disabled={!pdfUrl}
           title={t("Download PDF")}
-          className="rounded bg-signal px-3 py-1 text-xs font-semibold text-signal-contrast transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40 sm:px-4 sm:py-1.5 sm:text-sm"
+          className="shrink-0 rounded bg-signal px-2.5 py-1 text-xs font-semibold text-signal-contrast transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40 sm:px-4 sm:py-1.5 sm:text-sm"
         >
           <span className="sm:hidden">PDF</span>
           <span className="hidden sm:inline">{t("Download PDF")}</span>

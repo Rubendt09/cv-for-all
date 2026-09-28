@@ -24,7 +24,7 @@ interface TemplateSelectorProps {
 export function TemplateSelector({ value, onChange }: TemplateSelectorProps) {
   const t = useT();
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="flex items-center gap-1.5 min-w-0 w-full sm:w-auto">
       <label
         htmlFor="template-select"
         className="hidden font-mono text-sm text-ink-faint sm:block"
@@ -35,7 +35,7 @@ export function TemplateSelector({ value, onChange }: TemplateSelectorProps) {
         id="template-select"
         value={value}
         onChange={(e) => onChange(e.target.value as ThemeName)}
-        className="rounded border border-line bg-paper-raised px-3 py-1.5 text-sm font-medium text-ink-soft transition hover:border-ink-faint hover:text-ink focus:outline-none focus:ring-2 focus:ring-signal/40"
+        className="w-full min-w-0 truncate rounded border border-line bg-paper-raised px-2 py-1 text-xs font-medium text-ink-soft transition hover:border-ink-faint hover:text-ink focus:outline-none focus:ring-2 focus:ring-signal/40 sm:w-auto sm:px-3 sm:py-1.5 sm:text-sm"
       >
         {THEMES.map((theme) => (
           <option key={theme.value} value={theme.value}>
