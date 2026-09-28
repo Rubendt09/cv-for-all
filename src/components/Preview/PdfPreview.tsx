@@ -12,6 +12,7 @@ import * as pdfjsLib from "pdfjs-dist";
 import type { PDFDocumentProxy, RenderTask } from "pdfjs-dist";
 import pdfjsWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { useCvStore } from "@/store/cvStore";
+import { translate, useT } from "@/i18n";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl;
 
@@ -26,6 +27,7 @@ export function PdfPreview({ isCompiling }: PdfPreviewProps) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [renderError, setRenderError] = useState<string | null>(null);
+  const t = useT();
 
   useEffect(() => {
     if (!pdfUrl) return;
@@ -110,7 +112,9 @@ export function PdfPreview({ isCompiling }: PdfPreviewProps) {
       } catch (err) {
         if (!destroyed) {
           setRenderError(
-            err instanceof Error ? err.message : "Failed to load PDF.",
+            err instanceof Error
+              ? err.message
+              : translate(useCvStore.getState().language, "Failed to load PDF."),
           );
         }
       }
@@ -156,11 +160,13 @@ export function PdfPreview({ isCompiling }: PdfPreviewProps) {
     <div className="flex h-full flex-col bg-paper-sunken">
       {/* Toolbar */}
       <div className="flex items-center justify-between border-b border-line bg-paper-raised px-4 py-2">
-        <span className="font-mono text-sm text-ink-faint"># preview</span>
+        <span className="font-mono text-sm text-ink-faint">
+          {t("# preview")}
+        </span>
         {isCompiling && (
           <span className="flex items-center gap-2 font-mono text-sm text-signal">
             <span className="h-3 w-3 animate-spin rounded-full border-2 border-signal border-t-transparent" />
-            compiling&hellip;
+            {t("compiling…")}
           </span>
         )}
       </div>
@@ -171,7 +177,7 @@ export function PdfPreview({ isCompiling }: PdfPreviewProps) {
           <div className="flex h-full items-center justify-center p-8">
             <div className="max-w-md rounded border border-error/30 bg-error-soft p-6">
               <h3 className="mb-2 font-mono font-semibold text-error">
-                # compilation error
+                {t("# compilation error")}
               </h3>
               <pre className="whitespace-pre-wrap font-mono text-sm text-error">
                 {compileError}
@@ -182,7 +188,7 @@ export function PdfPreview({ isCompiling }: PdfPreviewProps) {
           <div className="flex h-full items-center justify-center p-8">
             <div className="text-center">
               <p className="font-mono text-sm text-ink-faint">
-                # fix YAML errors to see the preview
+                {t("# fix YAML errors to see the preview")}
               </p>
             </div>
           </div>
@@ -191,7 +197,7 @@ export function PdfPreview({ isCompiling }: PdfPreviewProps) {
             {renderError && (
               <div className="p-4">
                 <p className="font-mono text-sm text-error">
-                  # failed to render preview: {renderError}
+                  {t("# failed to render preview:")} {renderError}
                 </p>
               </div>
             )}
@@ -202,12 +208,13 @@ export function PdfPreview({ isCompiling }: PdfPreviewProps) {
             <div className="text-center">
               {isCompiling ? (
                 <p className="font-mono text-sm text-ink-faint">
-                  # loading typst compiler, first load may take a few
-                  seconds&hellip;
+                  {t(
+                    "# loading typst compiler, first load may take a few seconds…",
+                  )}
                 </p>
               ) : (
                 <p className="font-mono text-sm text-ink-faint">
-                  # your cv preview will appear here
+                  {t("# your cv preview will appear here")}
                 </p>
               )}
             </div>

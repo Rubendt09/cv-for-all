@@ -4,6 +4,7 @@
  */
 import { useMemo } from "react";
 import { useCvStore } from "@/store/cvStore";
+import { useT } from "@/i18n";
 import type { EntryTypeName } from "@/types/cv";
 import {
   loadDoc,
@@ -27,6 +28,7 @@ export function EntryEditor({ sectionTitle, index, entryType }: EntryEditorProps
   const yamlString = useCvStore((s) => s.yamlString);
   const setYaml = useCvStore((s) => s.setYaml);
   const errors = useCvStore((s) => s.errors);
+  const t = useT();
 
   const fields = useMemo(() => {
     if (entryType === "TextEntry") return null;
@@ -63,7 +65,7 @@ export function EntryEditor({ sectionTitle, index, entryType }: EntryEditorProps
       <TextAreaField
         value={value}
         onChange={(v) => updateField("", v)}
-        placeholder="Plain text entry…"
+        placeholder={t("Plain text entry…")}
         rows={2}
       />
     );
@@ -82,11 +84,11 @@ export function EntryEditor({ sectionTitle, index, entryType }: EntryEditorProps
             return (
               <TextAreaField
                 key={f.key}
-                label={f.label}
+                label={t(f.label)}
                 value={strValue}
                 onChange={(val) => updateField(f.key, val)}
-                placeholder={f.placeholder}
-                hint={f.hint}
+                placeholder={f.placeholder ? t(f.placeholder) : undefined}
+                hint={f.hint ? t(f.hint) : undefined}
                 error={err}
                 rows={2}
               />
@@ -95,10 +97,10 @@ export function EntryEditor({ sectionTitle, index, entryType }: EntryEditorProps
             return (
               <DateField
                 key={f.key}
-                label={f.label}
+                label={t(f.label)}
                 value={strValue}
                 onChange={(val) => updateField(f.key, val)}
-                hint={f.hint}
+                hint={f.hint ? t(f.hint) : undefined}
                 error={err}
               />
             );
@@ -106,10 +108,10 @@ export function EntryEditor({ sectionTitle, index, entryType }: EntryEditorProps
             return (
               <DateField
                 key={f.key}
-                label={f.label}
+                label={t(f.label)}
                 value={strValue}
                 onChange={(val) => updateField(f.key, val)}
-                hint={f.hint}
+                hint={f.hint ? t(f.hint) : undefined}
                 error={err}
                 allowPresent
               />
@@ -118,10 +120,10 @@ export function EntryEditor({ sectionTitle, index, entryType }: EntryEditorProps
             return (
               <StringListField
                 key={f.key}
-                label={f.label}
+                label={t(f.label)}
                 values={listValue}
                 onChange={(items) => updateList(f.key, items)}
-                placeholder={f.placeholder}
+                placeholder={f.placeholder ? t(f.placeholder) : undefined}
                 error={err}
               />
             );
@@ -130,11 +132,11 @@ export function EntryEditor({ sectionTitle, index, entryType }: EntryEditorProps
             return (
               <TextField
                 key={f.key}
-                label={f.label}
+                label={t(f.label)}
                 value={strValue}
                 onChange={(val) => updateField(f.key, val)}
-                placeholder={f.placeholder}
-                hint={f.hint}
+                placeholder={f.placeholder ? t(f.placeholder) : undefined}
+                hint={f.hint ? t(f.hint) : undefined}
                 error={err}
               />
             );

@@ -2,6 +2,7 @@
  * Template selector dropdown.
  */
 import type { ThemeName } from "@/types/cv";
+import { useT } from "@/i18n";
 
 const THEMES: { value: ThemeName; label: string }[] = [
   { value: "classic", label: "Classic" },
@@ -21,13 +22,14 @@ interface TemplateSelectorProps {
 }
 
 export function TemplateSelector({ value, onChange }: TemplateSelectorProps) {
+  const t = useT();
   return (
     <div className="flex items-center gap-1.5">
       <label
         htmlFor="template-select"
         className="hidden font-mono text-sm text-ink-faint sm:block"
       >
-        theme:
+        {t("Theme").toLowerCase()}:
       </label>
       <select
         id="template-select"

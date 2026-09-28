@@ -302,30 +302,34 @@ export function generateSuggestions(
 ): Suggestion[] {
   return missing.map((m) => {
     let suggestedSection: string;
+    // Reason messages use a {keyword} placeholder — interpolated and
+    // translated at render time (see JobMatcherResults).
     let reason: string;
 
     if (isTechnicalKeyword(m.category)) {
       if (parsed.hasSkillsSection) {
         suggestedSection = "Skills";
-        reason = `Add "${m.keyword}" to your Skills section.`;
+        reason = 'Add "{keyword}" to your Skills section.';
       } else if (parsed.hasExperienceSection) {
         suggestedSection = "Experience";
-        reason = `Mention "${m.keyword}" in a highlight under your Experience section.`;
+        reason =
+          'Mention "{keyword}" in a highlight under your Experience section.';
       } else if (parsed.hasProjectsSection) {
         suggestedSection = "Projects";
-        reason = `Reference "${m.keyword}" in a project description.`;
+        reason = 'Reference "{keyword}" in a project description.';
       } else {
         suggestedSection = "Skills";
-        reason = `Create a Skills section and add "${m.keyword}".`;
+        reason = 'Create a Skills section and add "{keyword}".';
       }
     } else {
       // soft-skill / methodology
       if (parsed.hasExperienceSection) {
         suggestedSection = "Experience";
-        reason = `Demonstrate "${m.keyword}" through a concrete achievement in your Experience section.`;
+        reason =
+          'Demonstrate "{keyword}" through a concrete achievement in your Experience section.';
       } else {
         suggestedSection = "Summary";
-        reason = `Mention "${m.keyword}" in a summary or objective statement.`;
+        reason = 'Mention "{keyword}" in a summary or objective statement.';
       }
     }
 

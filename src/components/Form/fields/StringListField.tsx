@@ -6,6 +6,7 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { useCvStore } from "@/store/cvStore";
+import { useT } from "@/i18n";
 
 interface StringListFieldProps {
   values: string[];
@@ -30,6 +31,7 @@ export function StringListField({
   minItems = 1,
 }: StringListFieldProps) {
   const externalRevision = useCvStore((s) => s.externalYamlRevision);
+  const t = useT();
   // Local copy so typing doesn't fight with re-serialization
   const [local, setLocal] = useState<string[]>(values);
   const focusedIndexRef = useRef<number | null>(null);
@@ -105,7 +107,7 @@ export function StringListField({
                 type="button"
                 onClick={() => moveItem(i, -1)}
                 disabled={i === 0}
-                title="Move up"
+                title={t("Move up")}
                 className="rounded border border-line px-1.5 text-[10px] leading-4 text-ink-soft transition hover:border-ink-faint hover:text-ink disabled:opacity-30"
               >
                 ▲
@@ -114,7 +116,7 @@ export function StringListField({
                 type="button"
                 onClick={() => moveItem(i, 1)}
                 disabled={i === rows.length - 1}
-                title="Move down"
+                title={t("Move down")}
                 className="rounded border border-line px-1.5 text-[10px] leading-4 text-ink-soft transition hover:border-ink-faint hover:text-ink disabled:opacity-30"
               >
                 ▼
@@ -123,7 +125,7 @@ export function StringListField({
             <button
               type="button"
               onClick={() => removeItem(i)}
-              title="Remove"
+              title={t("Remove")}
               className="rounded border border-line px-1.5 py-0.5 text-xs text-ink-soft transition hover:border-error hover:text-error"
             >
               ×
@@ -136,7 +138,7 @@ export function StringListField({
         onClick={addItem}
         className="self-start rounded border border-dashed border-line px-2 py-1 text-[11px] text-ink-soft transition hover:border-signal hover:text-signal"
       >
-        + Add item
+        {t("+ Add item")}
       </button>
       {error ? (
         <span className="text-[11px] text-error">{error}</span>

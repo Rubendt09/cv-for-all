@@ -4,6 +4,7 @@
  */
 import { useMemo, useState } from "react";
 import { useCvStore } from "@/store/cvStore";
+import { useT } from "@/i18n";
 import {
   loadDoc,
   getSections,
@@ -29,6 +30,7 @@ interface SectionCardProps {
 export function SectionCard({ sectionIndex }: SectionCardProps) {
   const yamlString = useCvStore((s) => s.yamlString);
   const setYaml = useCvStore((s) => s.setYaml);
+  const t = useT();
 
   const sections = useMemo(() => {
     const { doc } = loadDoc(yamlString);
@@ -54,7 +56,11 @@ export function SectionCard({ sectionIndex }: SectionCardProps) {
   return (
     <Card
       title={section.title}
-      badge={`${section.entryCount} ${section.entryCount === 1 ? "entry" : "entries"}`}
+      badge={
+        section.entryCount === 1
+          ? t("1 entry")
+          : t("{n} entries", { n: section.entryCount })
+      }
       defaultOpen={sectionIndex === 0}
       actions={
         <>
@@ -65,7 +71,7 @@ export function SectionCard({ sectionIndex }: SectionCardProps) {
               if (next !== null) setYaml(next);
             }}
             disabled={!canMoveUp}
-            title="Move section up"
+            title={t("Move section up")}
             className="rounded border border-line px-1.5 text-[10px] text-ink-soft transition hover:border-ink-faint hover:text-ink disabled:opacity-30"
           >
             ▲
@@ -77,7 +83,7 @@ export function SectionCard({ sectionIndex }: SectionCardProps) {
               if (next !== null) setYaml(next);
             }}
             disabled={!canMoveDown}
-            title="Move section down"
+            title={t("Move section down")}
             className="rounded border border-line px-1.5 text-[10px] text-ink-soft transition hover:border-ink-faint hover:text-ink disabled:opacity-30"
           >
             ▼
@@ -88,7 +94,7 @@ export function SectionCard({ sectionIndex }: SectionCardProps) {
               setTitleDraft(section.title);
               setRenaming(true);
             }}
-            title="Rename section"
+            title={t("Rename section")}
             className="rounded border border-line px-1.5 text-[10px] text-ink-soft transition hover:border-ink-faint hover:text-ink"
           >
             ✎
@@ -96,12 +102,16 @@ export function SectionCard({ sectionIndex }: SectionCardProps) {
           <button
             type="button"
             onClick={() => {
-              if (confirm(`Delete section "${section.title}"?`)) {
+              if (
+                confirm(
+                  t('Delete section "{title}"?', { title: section.title }),
+                )
+              ) {
                 const next = deleteSection(yamlString, section.title);
                 if (next !== null) setYaml(next);
               }
             }}
-            title="Delete section"
+            title={t("Delete section")}
             className="rounded border border-line px-1.5 text-[10px] text-ink-soft transition hover:border-error hover:text-error"
           >
             ×
@@ -127,20 +137,20 @@ export function SectionCard({ sectionIndex }: SectionCardProps) {
             onClick={() => doRename(titleDraft.trim())}
             className="rounded bg-signal px-2 py-1 text-xs font-semibold text-signal-contrast"
           >
-            Save
+            {t("Save")}
           </button>
           <button
             type="button"
             onClick={() => setRenaming(false)}
             className="rounded border border-line px-2 py-1 text-xs text-ink-soft"
           >
-            Cancel
+            {t("Cancel")}
           </button>
         </div>
       )}
 
       <div className="mb-2 text-[10px] font-mono text-ink-faint">
-        type: {section.entryType}
+        {t("type:")} {section.entryType}
       </div>
 
       <div className="flex flex-col gap-2">
@@ -163,7 +173,7 @@ export function SectionCard({ sectionIndex }: SectionCardProps) {
         }}
         className="mt-3 w-full rounded border border-dashed border-line px-2 py-1.5 text-[11px] text-ink-soft transition hover:border-signal hover:text-signal"
       >
-        + Add entry
+        {t("+ Add entry")}
       </button>
     </Card>
   );
@@ -186,6 +196,7 @@ function EntryBlock({
 }) {
   const yamlString = useCvStore((s) => s.yamlString);
   const setYaml = useCvStore((s) => s.setYaml);
+  const t = useT();
   const [open, setOpen] = useState(index === 0);
 
   // Preview: first scalar field for the collapsed summary
@@ -231,7 +242,7 @@ function EntryBlock({
             if (next !== null) setYaml(next);
           }}
           disabled={index === 0}
-          title="Move up"
+          title={t("Move up")}
           className="rounded border border-line px-1 text-[10px] text-ink-soft transition hover:border-ink-faint hover:text-ink disabled:opacity-30"
         >
           ▲
@@ -243,7 +254,7 @@ function EntryBlock({
             if (next !== null) setYaml(next);
           }}
           disabled={index === total - 1}
-          title="Move down"
+          title={t("Move down")}
           className="rounded border border-line px-1 text-[10px] text-ink-soft transition hover:border-ink-faint hover:text-ink disabled:opacity-30"
         >
           ▼
@@ -254,7 +265,7 @@ function EntryBlock({
             const next = duplicateEntry(yamlString, sectionTitle, index);
             if (next !== null) setYaml(next);
           }}
-          title="Duplicate"
+          title={t("Duplicate")}
           className="rounded border border-line px-1 text-[10px] text-ink-soft transition hover:border-ink-faint hover:text-ink"
         >
           ⧉
@@ -265,7 +276,7 @@ function EntryBlock({
             const next = deleteEntry(yamlString, sectionTitle, index);
             if (next !== null) setYaml(next);
           }}
-          title="Delete"
+          title={t("Delete")}
           className="rounded border border-line px-1 text-[10px] text-ink-soft transition hover:border-error hover:text-error"
         >
           ×
@@ -290,6 +301,7 @@ function EntryBlock({
 export function SectionsCard() {
   const yamlString = useCvStore((s) => s.yamlString);
   const setYaml = useCvStore((s) => s.setYaml);
+  const t = useT();
 
   const sections = useMemo(() => {
     const { doc } = loadDoc(yamlString);
@@ -310,12 +322,12 @@ export function SectionsCard() {
       setNewTitle("");
       setAdding(false);
     } else {
-      alert(`A section named "${title}" already exists.`);
+      alert(t('A section named "{title}" already exists.', { title }));
     }
   };
 
   return (
-    <Card title="Sections" badge={`${sections.length}`} defaultOpen>
+    <Card title={t("Sections")} badge={`${sections.length}`} defaultOpen>
       <div className="flex flex-col gap-2">
         {sections.map((_, i) => (
           <SectionCard key={i} sectionIndex={i} />
@@ -332,7 +344,7 @@ export function SectionsCard() {
                 if (e.key === "Escape") setAdding(false);
               }}
               autoFocus
-              placeholder="Section title (e.g. Experience)"
+              placeholder={t("Section title (e.g. Experience)")}
               className="w-full rounded border border-line bg-paper px-2 py-1.5 text-sm text-ink outline-none focus:border-signal"
             />
             <select
@@ -340,9 +352,9 @@ export function SectionsCard() {
               onChange={(e) => setNewType(e.target.value as EntryTypeName)}
               className="w-full rounded border border-line bg-paper px-1.5 py-1.5 text-xs text-ink outline-none focus:border-signal"
             >
-              {SELECTABLE_ENTRY_TYPES.map((t) => (
-                <option key={t} value={t}>
-                  {ENTRY_TYPE_LABELS[t]}
+              {SELECTABLE_ENTRY_TYPES.map((type) => (
+                <option key={type} value={type}>
+                  {t(ENTRY_TYPE_LABELS[type])}
                 </option>
               ))}
             </select>
@@ -352,14 +364,14 @@ export function SectionsCard() {
                 onClick={doAdd}
                 className="flex-1 rounded bg-signal px-2 py-1 text-xs font-semibold text-signal-contrast"
               >
-                Add section
+                {t("Add section")}
               </button>
               <button
                 type="button"
                 onClick={() => setAdding(false)}
                 className="rounded border border-line px-2 py-1 text-xs text-ink-soft"
               >
-                Cancel
+                {t("Cancel")}
               </button>
             </div>
           </div>
@@ -369,7 +381,7 @@ export function SectionsCard() {
             onClick={() => setAdding(true)}
             className="w-full rounded border border-dashed border-line px-2 py-1.5 text-[11px] text-ink-soft transition hover:border-signal hover:text-signal"
           >
-            + Add section
+            {t("+ Add section")}
           </button>
         )}
       </div>

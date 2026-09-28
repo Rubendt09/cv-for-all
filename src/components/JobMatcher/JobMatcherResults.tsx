@@ -5,6 +5,7 @@
 import { useState } from "react";
 import type { JobMatcherResult, KeywordMatch } from "@/utils/jobMatcher";
 import type { KeywordCategory } from "@/utils/keywordDatabase";
+import { useT } from "@/i18n";
 
 interface JobMatcherResultsProps {
   result: JobMatcherResult;
@@ -39,6 +40,7 @@ function groupByCategory(
 }
 
 function KeywordList({ keywords }: { keywords: KeywordMatch[] }) {
+  const t = useT();
   if (keywords.length === 0) return null;
   return (
     <ul className="flex flex-wrap gap-1.5">
@@ -48,7 +50,7 @@ function KeywordList({ keywords }: { keywords: KeywordMatch[] }) {
           className="rounded border border-line bg-paper-raised px-2 py-0.5 text-xs font-medium text-ink"
           title={
             kw.foundIn && kw.foundIn.length > 0
-              ? `Found in: ${kw.foundIn.join(", ")}`
+              ? `${t("Found in:")} ${kw.foundIn.map((s) => t(s)).join(", ")}`
               : undefined
           }
         >
@@ -85,6 +87,7 @@ function CategoryGroup({
 
 export function JobMatcherResults({ result }: JobMatcherResultsProps) {
   const [copied, setCopied] = useState(false);
+  const t = useT();
   const matchedGroups = groupByCategory(result.matched);
   const missingGroups = groupByCategory(result.missing);
 
@@ -111,13 +114,16 @@ export function JobMatcherResults({ result }: JobMatcherResultsProps) {
       {/* Compatibility score */}
       <div className="rounded border border-line bg-paper-raised p-4">
         <p className="font-mono text-xs text-ink-faint">
-          # compatibility
+          {t("# compatibility")}
         </p>
         <p className={`text-3xl font-bold ${percentageColor}`}>
           {result.compatibilityPercentage}%
         </p>
         <p className="mt-1 font-mono text-xs text-ink-faint">
-          {result.matchedCount} of {result.totalKeywordsInJob} keywords matched
+          {t("{matched} of {total} keywords matched", {
+            matched: result.matchedCount,
+            total: result.totalKeywordsInJob,
+          })}
         </p>
       </div>
 
@@ -125,12 +131,12 @@ export function JobMatcherResults({ result }: JobMatcherResultsProps) {
       {result.matched.length > 0 && (
         <div className="space-y-2">
           <p className="font-mono text-sm font-semibold text-success">
-            ✓ Matched ({result.matched.length})
+            {t("✓ Matched")} ({result.matched.length})
           </p>
           {Object.entries(matchedGroups).map(([cat, kws]) => (
             <CategoryGroup
               key={cat}
-              label={CATEGORY_LABELS[cat as KeywordCategory]}
+              label={t(CATEGORY_LABELS[cat as KeywordCategory])}
               keywords={kws}
               color="success"
             />
@@ -143,20 +149,20 @@ export function JobMatcherResults({ result }: JobMatcherResultsProps) {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <p className="font-mono text-sm font-semibold text-error">
-              ✗ Missing ({result.missing.length})
+              {t("✗ Missing")} ({result.missing.length})
             </p>
             <button
               type="button"
               onClick={handleCopyMissing}
               className="rounded border border-line px-2 py-0.5 text-xs font-medium text-ink-soft transition hover:border-ink-faint hover:text-ink"
             >
-              {copied ? "Copied!" : "Copy missing"}
+              {copied ? t("Copied!") : t("Copy missing")}
             </button>
           </div>
           {Object.entries(missingGroups).map(([cat, kws]) => (
             <CategoryGroup
               key={cat}
-              label={CATEGORY_LABELS[cat as KeywordCategory]}
+              label={t(CATEGORY_LABELS[cat as KeywordCategory])}
               keywords={kws}
               color="error"
             />
@@ -168,7 +174,7 @@ export function JobMatcherResults({ result }: JobMatcherResultsProps) {
       {result.suggestions.length > 0 && (
         <div className="space-y-2">
           <p className="font-mono text-sm font-semibold text-signal">
-            # suggestions
+            {t("# suggestions")}
           </p>
           <ul className="space-y-1.5">
             {result.suggestions.map((s) => (
@@ -176,9 +182,11 @@ export function JobMatcherResults({ result }: JobMatcherResultsProps) {
                 key={s.keyword}
                 className="rounded border border-signal/30 bg-signal-soft px-3 py-2 text-sm text-ink"
               >
-                <span className="font-medium">{s.reason}</span>
+                <span className="font-medium">
+                  {t(s.reason, { keyword: s.keyword })}
+                </span>
                 <span className="ml-1 font-mono text-xs text-ink-faint">
-                  → {s.suggestedSection}
+                  → {t(s.suggestedSection)}
                 </span>
               </li>
             ))}
@@ -189,8 +197,9 @@ export function JobMatcherResults({ result }: JobMatcherResultsProps) {
       {/* Empty state */}
       {result.totalKeywordsInJob === 0 && (
         <p className="font-mono text-sm text-ink-faint">
-          # no recognizable keywords found in the job description. Try pasting a
-          more detailed description.
+          {t(
+            "# no recognizable keywords found in the job description. Try pasting a more detailed description.",
+          )}
         </p>
       )}
     </div>

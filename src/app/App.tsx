@@ -14,6 +14,7 @@ import { EditorPanel } from "@/components/Editor/EditorPanel";
 import { PdfPreview } from "@/components/Preview/PdfPreview";
 import { JobMatcherPanel } from "@/components/JobMatcher/JobMatcherPanel";
 import { useCvStore } from "@/store/cvStore";
+import { useT } from "@/i18n";
 import { parseAndValidate } from "@/yaml/parser";
 import { generatePdfFromYaml } from "@/pdf/generator";
 import exampleYaml from "@/examples/example-cv.yaml?raw";
@@ -35,6 +36,7 @@ export function App() {
   const [mobileTab, setMobileTab] = useState<"edit" | "preview" | "matcher">(
     "edit",
   );
+  const t = useT();
 
   // Load from localStorage or example on mount
   useEffect(() => {
@@ -118,7 +120,7 @@ export function App() {
               : "text-ink-soft"
           }`}
         >
-          Edit
+          {t("Edit")}
         </button>
         <button
           type="button"
@@ -129,7 +131,7 @@ export function App() {
               : "text-ink-soft"
           }`}
         >
-          Preview
+          {t("Preview")}
         </button>
         <button
           type="button"
@@ -140,7 +142,7 @@ export function App() {
               : "text-ink-soft"
           }`}
         >
-          Matcher
+          {t("Matcher")}
         </button>
       </div>
       <div className="flex flex-1 overflow-hidden">
@@ -178,10 +180,12 @@ export function App() {
               <button
                 type="button"
                 onClick={() => setMatcherCollapsed(false)}
-                title="Show Job Matcher"
+                title={t("Show Job Matcher")}
                 className="rounded border border-line px-1 py-2 text-[10px] text-ink-soft transition hover:border-signal hover:text-signal"
               >
-                <span className="[writing-mode:vertical-rl]">Matcher</span>
+                <span className="[writing-mode:vertical-rl]">
+                  {t("Matcher")}
+                </span>
               </button>
             </div>
           </>
@@ -196,7 +200,9 @@ export function App() {
         )}
       </div>
       <footer className="flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 border-t border-line bg-paper-raised px-3 py-1.5 font-mono text-[10px] text-ink-faint sm:px-4 sm:text-[11px]">
-        <span># independent project, compatible with RenderCV YAML</span>
+        <span>
+          {t("# independent project, compatible with RenderCV YAML")}
+        </span>
         <span aria-hidden="true">&middot;</span>
         <a
           href="https://github.com/rendercv/rendercv"

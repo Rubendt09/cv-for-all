@@ -9,6 +9,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import type { z } from "zod";
 import { useCvStore } from "@/store/cvStore";
+import { useT } from "@/i18n";
 import {
   loadDoc,
   getDesign,
@@ -188,6 +189,7 @@ export function DesignCard() {
   const selectedTheme = useCvStore((s) => s.selectedTheme);
   const setTheme = useCvStore((s) => s.setTheme);
   const errors = useCvStore((s) => s.errors);
+  const t = useT();
 
   const { raw, resolved, hasAliases } = useMemo(() => {
     const { doc } = loadDoc(yamlString);
@@ -265,16 +267,17 @@ export function DesignCard() {
   };
 
   return (
-    <Card title="PDF Design">
+    <Card title={t("PDF Design")}>
       {hasAliases ? (
         <div className="rounded border border-error bg-error-soft px-3 py-2 text-xs text-error">
-          The design: section uses anchors/aliases. Edit it in the YAML
-          editor.
+          {t(
+            "The design: section uses anchors/aliases. Edit it in the YAML editor.",
+          )}
         </div>
       ) : (
         <div className="flex flex-col gap-2">
           <SelectField
-            label="Theme"
+            label={t("Theme")}
             value={strVal(raw.theme, resolved.theme)}
             onChange={onThemeChange}
             options={THEME_OPTIONS}
@@ -282,9 +285,9 @@ export function DesignCard() {
           />
 
           {/* ============================== Page ============================== */}
-          <DesignGroup title="Page" defaultOpen>
+          <DesignGroup title={t("Page")} defaultOpen>
             <SelectField
-              label="Page size"
+              label={t("Page size")}
               value={strVal(rPage.size, resolved.page.size)}
               onChange={(v) => update(["design", "page", "size"], v)}
               options={PAGE_SIZES}
@@ -292,25 +295,25 @@ export function DesignCard() {
             />
             <div className="grid grid-cols-2 gap-x-2 gap-y-2.5">
               <TextField
-                label="Top margin"
+                label={t("Top margin")}
                 value={strVal(rPage.top_margin, resolved.page.top_margin)}
                 onChange={(v) => update(["design", "page", "top_margin"], v)}
                 monospace
               />
               <TextField
-                label="Bottom margin"
+                label={t("Bottom margin")}
                 value={strVal(rPage.bottom_margin, resolved.page.bottom_margin)}
                 onChange={(v) => update(["design", "page", "bottom_margin"], v)}
                 monospace
               />
               <TextField
-                label="Left margin"
+                label={t("Left margin")}
                 value={strVal(rPage.left_margin, resolved.page.left_margin)}
                 onChange={(v) => update(["design", "page", "left_margin"], v)}
                 monospace
               />
               <TextField
-                label="Right margin"
+                label={t("Right margin")}
                 value={strVal(rPage.right_margin, resolved.page.right_margin)}
                 onChange={(v) => update(["design", "page", "right_margin"], v)}
                 monospace
@@ -318,12 +321,12 @@ export function DesignCard() {
             </div>
             <div className="grid grid-cols-2 gap-x-2">
               <CheckboxField
-                label="Show footer"
+                label={t("Show footer")}
                 checked={boolVal(rPage.show_footer, resolved.page.show_footer)}
                 onChange={(v) => update(["design", "page", "show_footer"], v)}
               />
               <CheckboxField
-                label="Show top note"
+                label={t("Show top note")}
                 checked={boolVal(rPage.show_top_note, resolved.page.show_top_note)}
                 onChange={(v) => update(["design", "page", "show_top_note"], v)}
               />
@@ -331,12 +334,12 @@ export function DesignCard() {
           </DesignGroup>
 
           {/* ============================= Colors ============================= */}
-          <DesignGroup title="Colors">
+          <DesignGroup title={t("Colors")}>
             <div className="grid grid-cols-1 gap-x-2 gap-y-2.5 sm:grid-cols-2">
               {COLOR_FIELDS.map(({ key, label }) => (
                 <ColorField
                   key={key}
-                  label={label}
+                  label={t(label)}
                   value={strVal(rColors[key], resolved.colors[key])}
                   onChange={(v) => update(["design", "colors", key], v)}
                   error={errorFor(`design.colors.${key}`)}
@@ -346,17 +349,17 @@ export function DesignCard() {
           </DesignGroup>
 
           {/* =========================== Typography =========================== */}
-          <DesignGroup title="Typography">
+          <DesignGroup title={t("Typography")}>
             <div className="grid grid-cols-2 gap-x-2 gap-y-2.5">
               <SelectField
-                label="Body alignment"
+                label={t("Body alignment")}
                 value={strVal(rTypo.alignment, resolved.typography.alignment)}
                 onChange={(v) => update(["design", "typography", "alignment"], v)}
                 options={BODY_ALIGNMENTS}
                 error={errorFor("design.typography.alignment")}
               />
               <SelectField
-                label="Date/location align"
+                label={t("Date/location align")}
                 value={strVal(
                   rTypo.date_and_location_column_alignment,
                   resolved.typography.date_and_location_column_alignment,
@@ -373,7 +376,7 @@ export function DesignCard() {
                 )}
               />
               <TextField
-                label="Line spacing"
+                label={t("Line spacing")}
                 value={strVal(rTypo.line_spacing, resolved.typography.line_spacing)}
                 onChange={(v) =>
                   update(["design", "typography", "line_spacing"], v)
@@ -384,13 +387,13 @@ export function DesignCard() {
 
             <div>
               <span className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-ink-soft">
-                Font family
+                {t("Font family")}
               </span>
               <div className="grid grid-cols-1 gap-x-2 gap-y-2.5 sm:grid-cols-2">
                 {FONT_AREAS.map(({ key, label }) => (
                   <TextField
                     key={key}
-                    label={label}
+                    label={t(label)}
                     value={strVal(
                       rawFontAt(key),
                       resolved.typography.font_family[key],
@@ -404,13 +407,13 @@ export function DesignCard() {
 
             <div>
               <span className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-ink-soft">
-                Font size
+                {t("Font size")}
               </span>
               <div className="grid grid-cols-2 gap-x-2 gap-y-2.5 sm:grid-cols-3">
                 {FONT_AREAS.map(({ key, label }) => (
                   <TextField
                     key={key}
-                    label={label}
+                    label={t(label)}
                     value={strVal(
                       rFontSize[key],
                       resolved.typography.font_size[key],
@@ -427,12 +430,12 @@ export function DesignCard() {
             <div className="grid grid-cols-2 gap-x-2 gap-y-1 sm:grid-cols-2">
               <div>
                 <span className="mb-0.5 block text-[11px] font-medium uppercase tracking-wide text-ink-soft">
-                  Bold
+                  {t("Bold")}
                 </span>
                 {TYPOGRAPHY_AREAS.map(({ key, label }) => (
                   <CheckboxField
                     key={key}
-                    label={label}
+                    label={t(label)}
                     checked={boolVal(
                       rBold[key],
                       resolved.typography.bold[key],
@@ -445,12 +448,12 @@ export function DesignCard() {
               </div>
               <div>
                 <span className="mb-0.5 block text-[11px] font-medium uppercase tracking-wide text-ink-soft">
-                  Small caps
+                  {t("Small caps")}
                 </span>
                 {TYPOGRAPHY_AREAS.map(({ key, label }) => (
                   <CheckboxField
                     key={key}
-                    label={label}
+                    label={t(label)}
                     checked={boolVal(
                       rSmallCaps[key],
                       resolved.typography.small_caps[key],
@@ -465,16 +468,16 @@ export function DesignCard() {
           </DesignGroup>
 
           {/* ============================= Header ============================= */}
-          <DesignGroup title="Header layout">
+          <DesignGroup title={t("Header layout")}>
             <div className="grid grid-cols-2 gap-x-2 gap-y-2.5">
               <SelectField
-                label="Alignment"
+                label={t("Alignment")}
                 value={strVal(rHeader.alignment, resolved.header.alignment)}
                 onChange={(v) => update(["design", "header", "alignment"], v)}
                 options={ALIGNMENTS}
               />
               <SelectField
-                label="Photo position"
+                label={t("Photo position")}
                 value={strVal(
                   rHeader.photo_position,
                   resolved.header.photo_position,
@@ -485,13 +488,13 @@ export function DesignCard() {
                 options={PHOTO_POSITIONS}
               />
               <TextField
-                label="Photo width"
+                label={t("Photo width")}
                 value={strVal(rHeader.photo_width, resolved.header.photo_width)}
                 onChange={(v) => update(["design", "header", "photo_width"], v)}
                 monospace
               />
               <TextField
-                label="Photo space left"
+                label={t("Photo space left")}
                 value={strVal(
                   rHeader.photo_space_left,
                   resolved.header.photo_space_left,
@@ -502,7 +505,7 @@ export function DesignCard() {
                 monospace
               />
               <TextField
-                label="Photo space right"
+                label={t("Photo space right")}
                 value={strVal(
                   rHeader.photo_space_right,
                   resolved.header.photo_space_right,
@@ -513,7 +516,7 @@ export function DesignCard() {
                 monospace
               />
               <TextField
-                label="Space below name"
+                label={t("Space below name")}
                 value={strVal(
                   rHeader.space_below_name,
                   resolved.header.space_below_name,
@@ -524,7 +527,7 @@ export function DesignCard() {
                 monospace
               />
               <TextField
-                label="Space below headline"
+                label={t("Space below headline")}
                 value={strVal(
                   rHeader.space_below_headline,
                   resolved.header.space_below_headline,
@@ -535,7 +538,7 @@ export function DesignCard() {
                 monospace
               />
               <TextField
-                label="Space below connections"
+                label={t("Space below connections")}
                 value={strVal(
                   rHeader.space_below_connections,
                   resolved.header.space_below_connections,
@@ -549,11 +552,11 @@ export function DesignCard() {
 
             <div>
               <span className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-ink-soft">
-                Connections
+                {t("Connections")}
               </span>
               <div className="grid grid-cols-2 gap-x-2 gap-y-2.5">
                 <SelectField
-                  label="Phone format"
+                  label={t("Phone format")}
                   value={strVal(
                     rConn.phone_number_format,
                     resolved.header.connections.phone_number_format,
@@ -567,7 +570,7 @@ export function DesignCard() {
                   options={PHONE_FORMATS}
                 />
                 <TextField
-                  label="Separator"
+                  label={t("Separator")}
                   value={strVal(
                     rConn.separator,
                     resolved.header.connections.separator,
@@ -575,10 +578,10 @@ export function DesignCard() {
                   onChange={(v) =>
                     update(["design", "header", "connections", "separator"], v)
                   }
-                  hint="Empty = theme default separator"
+                  hint={t("Empty = theme default separator")}
                 />
                 <TextField
-                  label="Space between"
+                  label={t("Space between")}
                   value={strVal(
                     rConn.space_between_connections,
                     resolved.header.connections.space_between_connections,
@@ -599,7 +602,7 @@ export function DesignCard() {
               </div>
               <div className="mt-1.5 grid grid-cols-2 gap-x-2">
                 <CheckboxField
-                  label="Show icons"
+                  label={t("Show icons")}
                   checked={boolVal(
                     rConn.show_icons,
                     resolved.header.connections.show_icons,
@@ -609,7 +612,7 @@ export function DesignCard() {
                   }
                 />
                 <CheckboxField
-                  label="Hyperlink"
+                  label={t("Hyperlink")}
                   checked={boolVal(
                     rConn.hyperlink,
                     resolved.header.connections.hyperlink,
@@ -619,7 +622,7 @@ export function DesignCard() {
                   }
                 />
                 <CheckboxField
-                  label="Show URLs instead of usernames"
+                  label={t("Show URLs instead of usernames")}
                   checked={boolVal(
                     rConn.display_urls_instead_of_usernames,
                     resolved.header.connections
@@ -642,9 +645,9 @@ export function DesignCard() {
           </DesignGroup>
 
           {/* ========================= Section titles ========================= */}
-          <DesignGroup title="Section titles">
+          <DesignGroup title={t("Section titles")}>
             <SelectField
-              label="Style"
+              label={t("Style")}
               value={strVal(rSecTitles.type, resolved.section_titles.type)}
               onChange={(v) => update(["design", "section_titles", "type"], v)}
               options={SECTION_TITLE_TYPES}
@@ -652,7 +655,7 @@ export function DesignCard() {
             />
             <div className="grid grid-cols-3 gap-x-2 gap-y-2.5">
               <TextField
-                label="Line thickness"
+                label={t("Line thickness")}
                 value={strVal(
                   rSecTitles.line_thickness,
                   resolved.section_titles.line_thickness,
@@ -663,7 +666,7 @@ export function DesignCard() {
                 monospace
               />
               <TextField
-                label="Space above"
+                label={t("Space above")}
                 value={strVal(
                   rSecTitles.space_above,
                   resolved.section_titles.space_above,
@@ -674,7 +677,7 @@ export function DesignCard() {
                 monospace
               />
               <TextField
-                label="Space below"
+                label={t("Space below")}
                 value={strVal(
                   rSecTitles.space_below,
                   resolved.section_titles.space_below,
@@ -688,10 +691,10 @@ export function DesignCard() {
           </DesignGroup>
 
           {/* ============================ Sections ============================ */}
-          <DesignGroup title="Sections">
+          <DesignGroup title={t("Sections")}>
             <div className="grid grid-cols-2 gap-x-2 gap-y-2.5">
               <TextField
-                label="Space between entries"
+                label={t("Space between entries")}
                 value={strVal(
                   rSections.space_between_regular_entries,
                   resolved.sections.space_between_regular_entries,
@@ -705,7 +708,7 @@ export function DesignCard() {
                 monospace
               />
               <TextField
-                label="Space between text entries"
+                label={t("Space between text entries")}
                 value={strVal(
                   rSections.space_between_text_based_entries,
                   resolved.sections.space_between_text_based_entries,
@@ -720,7 +723,7 @@ export function DesignCard() {
               />
             </div>
             <CheckboxField
-              label="Allow page break inside sections"
+              label={t("Allow page break inside sections")}
               checked={boolVal(
                 rSections.allow_page_break,
                 resolved.sections.allow_page_break,
@@ -730,7 +733,7 @@ export function DesignCard() {
               }
             />
             <StringListField
-              label="Show time spans in"
+              label={t("Show time spans in")}
               values={
                 Array.isArray(rSections.show_time_spans_in)
                   ? rSections.show_time_spans_in.map(String)
@@ -744,17 +747,17 @@ export function DesignCard() {
                 );
                 if (next !== null) setYaml(next);
               }}
-              placeholder="e.g. experience"
-              hint="Section keys whose entries show a duration"
+              placeholder={t("e.g. experience")}
+              hint={t("Section keys whose entries show a duration")}
               minItems={0}
             />
           </DesignGroup>
 
           {/* ============================= Entries ============================ */}
-          <DesignGroup title="Entries">
+          <DesignGroup title={t("Entries")}>
             <div className="grid grid-cols-2 gap-x-2 gap-y-2.5">
               <TextField
-                label="Date/location width"
+                label={t("Date/location width")}
                 value={strVal(
                   rEntries.date_and_location_width,
                   resolved.entries.date_and_location_width,
@@ -765,13 +768,13 @@ export function DesignCard() {
                 monospace
               />
               <TextField
-                label="Side space"
+                label={t("Side space")}
                 value={strVal(rEntries.side_space, resolved.entries.side_space)}
                 onChange={(v) => update(["design", "entries", "side_space"], v)}
                 monospace
               />
               <TextField
-                label="Space between columns"
+                label={t("Space between columns")}
                 value={strVal(
                   rEntries.space_between_columns,
                   resolved.entries.space_between_columns,
@@ -782,7 +785,7 @@ export function DesignCard() {
                 monospace
               />
               <TextField
-                label="Degree column width"
+                label={t("Degree column width")}
                 value={strVal(
                   rEntries.degree_width,
                   resolved.entries.degree_width,
@@ -795,7 +798,7 @@ export function DesignCard() {
             </div>
             <div className="grid grid-cols-2 gap-x-2">
               <CheckboxField
-                label="Allow page break inside entries"
+                label={t("Allow page break inside entries")}
                 checked={boolVal(
                   rEntries.allow_page_break,
                   resolved.entries.allow_page_break,
@@ -805,7 +808,7 @@ export function DesignCard() {
                 }
               />
               <CheckboxField
-                label="Short second row"
+                label={t("Short second row")}
                 checked={boolVal(
                   rEntries.short_second_row,
                   resolved.entries.short_second_row,
@@ -817,7 +820,7 @@ export function DesignCard() {
             </div>
             <div className="grid grid-cols-2 gap-x-2 gap-y-2.5">
               <TextField
-                label="Summary space above"
+                label={t("Summary space above")}
                 value={strVal(
                   rSummary.space_above,
                   resolved.entries.summary.space_above,
@@ -828,7 +831,7 @@ export function DesignCard() {
                 monospace
               />
               <TextField
-                label="Summary space left"
+                label={t("Summary space left")}
                 value={strVal(
                   rSummary.space_left,
                   resolved.entries.summary.space_left,
@@ -841,11 +844,11 @@ export function DesignCard() {
             </div>
             <div>
               <span className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-ink-soft">
-                Highlights
+                {t("Highlights")}
               </span>
               <div className="grid grid-cols-2 gap-x-2 gap-y-2.5">
                 <SelectField
-                  label="Bullet"
+                  label={t("Bullet")}
                   value={strVal(
                     rHighlights.bullet,
                     resolved.entries.highlights.bullet,
@@ -856,7 +859,7 @@ export function DesignCard() {
                   options={BULLETS}
                 />
                 <SelectField
-                  label="Nested bullet"
+                  label={t("Nested bullet")}
                   value={strVal(
                     rHighlights.nested_bullet,
                     resolved.entries.highlights.nested_bullet,
@@ -870,7 +873,7 @@ export function DesignCard() {
                   options={BULLETS}
                 />
                 <TextField
-                  label="Space left"
+                  label={t("Space left")}
                   value={strVal(
                     rHighlights.space_left,
                     resolved.entries.highlights.space_left,
@@ -884,7 +887,7 @@ export function DesignCard() {
                   monospace
                 />
                 <TextField
-                  label="Space above"
+                  label={t("Space above")}
                   value={strVal(
                     rHighlights.space_above,
                     resolved.entries.highlights.space_above,
@@ -898,7 +901,7 @@ export function DesignCard() {
                   monospace
                 />
                 <TextField
-                  label="Between items"
+                  label={t("Between items")}
                   value={strVal(
                     rHighlights.space_between_items,
                     resolved.entries.highlights.space_between_items,
@@ -912,7 +915,7 @@ export function DesignCard() {
                   monospace
                 />
                 <TextField
-                  label="Bullet ↔ text"
+                  label={t("Bullet ↔ text")}
                   value={strVal(
                     rHighlights.space_between_bullet_and_text,
                     resolved.entries.highlights.space_between_bullet_and_text,
@@ -935,15 +938,15 @@ export function DesignCard() {
           </DesignGroup>
 
           {/* ============================== Links ============================= */}
-          <DesignGroup title="Links">
+          <DesignGroup title={t("Links")}>
             <div className="grid grid-cols-2 gap-x-2">
               <CheckboxField
-                label="Underline links"
+                label={t("Underline links")}
                 checked={boolVal(rLinks.underline, resolved.links.underline)}
                 onChange={(v) => update(["design", "links", "underline"], v)}
               />
               <CheckboxField
-                label="External link icon"
+                label={t("External link icon")}
                 checked={boolVal(
                   rLinks.show_external_link_icon,
                   resolved.links.show_external_link_icon,
@@ -956,27 +959,28 @@ export function DesignCard() {
           </DesignGroup>
 
           {/* ============================ Templates =========================== */}
-          <DesignGroup title="Templates">
+          <DesignGroup title={t("Templates")}>
             <p className="text-[11px] text-ink-faint">
-              Placeholders like NAME, DATE, PAGE_NUMBER. Empty resets to the
-              theme default.
+              {t(
+                "Placeholders like NAME, DATE, PAGE_NUMBER. Empty resets to the theme default.",
+              )}
             </p>
             <div className="grid grid-cols-1 gap-y-2.5">
               <TextField
-                label="Footer"
+                label={t("Footer")}
                 value={strVal(rTemplates.footer, resolved.templates.footer)}
                 onChange={(v) => update(["design", "templates", "footer"], v)}
                 monospace
               />
               <TextField
-                label="Top note"
+                label={t("Top note")}
                 value={strVal(rTemplates.top_note, resolved.templates.top_note)}
                 onChange={(v) => update(["design", "templates", "top_note"], v)}
                 monospace
               />
               <div className="grid grid-cols-3 gap-x-2">
                 <TextField
-                  label="Single date"
+                  label={t("Single date")}
                   value={strVal(
                     rTemplates.single_date,
                     resolved.templates.single_date,
@@ -987,7 +991,7 @@ export function DesignCard() {
                   monospace
                 />
                 <TextField
-                  label="Date range"
+                  label={t("Date range")}
                   value={strVal(
                     rTemplates.date_range,
                     resolved.templates.date_range,
@@ -998,7 +1002,7 @@ export function DesignCard() {
                   monospace
                 />
                 <TextField
-                  label="Time span"
+                  label={t("Time span")}
                   value={strVal(
                     rTemplates.time_span,
                     resolved.templates.time_span,
@@ -1014,13 +1018,13 @@ export function DesignCard() {
             {ENTRY_TEMPLATES.map(({ key, label, fields }) => (
               <div key={key}>
                 <span className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-ink-soft">
-                  {label} entry
+                  {t(`${label} entry`)}
                 </span>
                 <div className="flex flex-col gap-2">
                   {fields.map((field) => (
                     <TextAreaField
                       key={field}
-                      label={field.replace(/_/g, " ")}
+                      label={t(field.replace(/_/g, " "))}
                       rows={2}
                       value={strVal(
                         rawObj(rTemplates[key])[field],

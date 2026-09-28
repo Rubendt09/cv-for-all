@@ -5,6 +5,7 @@
  */
 import { useMemo } from "react";
 import { useCvStore } from "@/store/cvStore";
+import { useT } from "@/i18n";
 import { loadDoc, hasAliasesInCv } from "@/yaml/doc-editor";
 import { BasicsCard } from "./BasicsCard";
 import { ConnectionsCard } from "./ConnectionsCard";
@@ -14,6 +15,7 @@ import { DesignCard } from "./DesignCard";
 export function CvForm() {
   const yamlString = useCvStore((s) => s.yamlString);
   const setEditorMode = useCvStore((s) => s.setEditorMode);
+  const t = useT();
 
   const status = useMemo(() => {
     const { doc, error } = loadDoc(yamlString);
@@ -23,12 +25,13 @@ export function CvForm() {
     if (hasAliasesInCv(doc)) {
       return {
         kind: "aliases" as const,
-        message:
+        message: t(
           "This YAML uses anchors/aliases inside cv:. The form is read-only to avoid corrupting it. Edit the YAML directly.",
+        ),
       };
     }
     return { kind: "ok" as const };
-  }, [yamlString]);
+  }, [yamlString, t]);
 
   if (status.kind !== "ok") {
     return (
@@ -41,7 +44,7 @@ export function CvForm() {
           onClick={() => setEditorMode("yaml")}
           className="rounded bg-signal px-3 py-1.5 text-sm font-semibold text-signal-contrast transition hover:brightness-110"
         >
-          Switch to YAML editor
+          {t("Switch to YAML editor")}
         </button>
       </div>
     );

@@ -14,6 +14,8 @@ import { generateTypstFromYaml } from "@/pdf/generator";
 import { compileToPdf } from "@/typst/compiler";
 import type { ThemeName } from "@/types/cv";
 import { TemplateSelector } from "@/components/TemplateSelector/TemplateSelector";
+import { LanguageSelector } from "@/components/LanguageSelector/LanguageSelector";
+import { useT } from "@/i18n";
 
 export function Header() {
   const yamlString = useCvStore((s) => s.yamlString);
@@ -25,12 +27,13 @@ export function Header() {
   const errors = useCvStore((s) => s.errors);
   const jobMatcherResults = useCvStore((s) => s.jobMatcherResults);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const t = useT();
 
   const statusLine = isCompiling
-    ? "# compiling\u2026"
+    ? `# ${t("compiling\u2026")}`
     : errors.length > 0
-      ? `# ${errors.length} ${errors.length === 1 ? "error" : "errors"}`
-      : "# 0 errors \u00b7 ready to compile";
+      ? `# ${errors.length === 1 ? t("1 error") : t("{n} errors", { n: errors.length })}`
+      : `# ${t("0 errors \u00b7 ready to compile")}`;
   const statusColor = isCompiling
     ? "text-ink-faint"
     : errors.length > 0
@@ -38,7 +41,7 @@ export function Header() {
       : "text-success";
 
   const matcherLine = jobMatcherResults
-    ? ` \u00b7 match ${jobMatcherResults.compatibilityPercentage}%`
+    ? ` ${t("\u00b7 match {n}%", { n: jobMatcherResults.compatibilityPercentage })}`
     : "";
   const matcherColor = jobMatcherResults
     ? jobMatcherResults.compatibilityPercentage >= 75
@@ -125,6 +128,8 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-1.5 sm:gap-2">
+        <LanguageSelector />
+
         <TemplateSelector
           value={selectedTheme}
           onChange={handleThemeChange}
@@ -140,30 +145,30 @@ export function Header() {
 
         <button
           onClick={handleImportClick}
-          title="Import YAML"
+          title={t("Import YAML")}
           className="rounded border border-line px-2 py-1 text-xs font-medium text-ink-soft transition hover:border-ink-faint hover:text-ink sm:px-3 sm:py-1.5 sm:text-sm"
         >
-          <span className="sm:hidden">Import</span>
-          <span className="hidden sm:inline">Import YAML</span>
+          <span className="sm:hidden">{t("Import")}</span>
+          <span className="hidden sm:inline">{t("Import YAML")}</span>
         </button>
 
         <button
           onClick={handleDownloadYaml}
-          title="Download YAML"
+          title={t("Download YAML")}
           className="rounded border border-line px-2 py-1 text-xs font-medium text-ink-soft transition hover:border-ink-faint hover:text-ink sm:px-3 sm:py-1.5 sm:text-sm"
         >
           <span className="sm:hidden">YAML</span>
-          <span className="hidden sm:inline">Download YAML</span>
+          <span className="hidden sm:inline">{t("Download YAML")}</span>
         </button>
 
         <button
           onClick={handleDownloadPdf}
           disabled={!pdfUrl}
-          title="Download PDF"
+          title={t("Download PDF")}
           className="rounded bg-signal px-3 py-1 text-xs font-semibold text-signal-contrast transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40 sm:px-4 sm:py-1.5 sm:text-sm"
         >
           <span className="sm:hidden">PDF</span>
-          <span className="hidden sm:inline">Download PDF</span>
+          <span className="hidden sm:inline">{t("Download PDF")}</span>
         </button>
       </div>
     </header>

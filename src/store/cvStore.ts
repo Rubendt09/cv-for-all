@@ -13,8 +13,24 @@ import type { JobMatcherResult } from "@/utils/jobMatcher";
 const STORAGE_KEY = "cv-for-all-yaml";
 const JOB_DESCRIPTION_KEY = "cv-for-all-job-description";
 const EDITOR_MODE_KEY = "cv-for-all-editor-mode";
+const LANGUAGE_KEY = "cv-for-all-language";
 
 export type EditorMode = "form" | "yaml";
+
+/** UI language. Same union as `Language` in @/i18n (declared inline to keep
+ * this module free of runtime imports from the i18n layer). */
+export type AppLanguage = "en" | "es";
+
+/** Detect the UI language from the browser; defaults to English. */
+function detectLanguage(): AppLanguage {
+  if (
+    typeof navigator !== "undefined" &&
+    navigator.language?.toLowerCase().startsWith("es")
+  ) {
+    return "es";
+  }
+  return "en";
+}
 
 interface CvStoreState {
   /** Current YAML content in the editor. */
@@ -41,6 +57,8 @@ interface CvStoreState {
   jobMatcherResults: JobMatcherResult | null;
   /** Active editor mode: form or yaml. */
   editorMode: EditorMode;
+  /** UI language (app chrome only — the PDF language comes from `locale:`). */
+  language: AppLanguage;
   /** Whether the Job Matcher panel is collapsed (form mode uses the space). */
   matcherCollapsed: boolean;
   /**
@@ -63,6 +81,7 @@ interface CvStoreState {
   setJobDescription: (description: string | null) => void;
   setJobMatcherResults: (results: JobMatcherResult | null) => void;
   setEditorMode: (mode: EditorMode) => void;
+  setLanguage: (language: AppLanguage) => void;
   setMatcherCollapsed: (collapsed: boolean) => void;
   loadExample: (yaml: string) => void;
   importYaml: (yaml: string) => void;
@@ -83,6 +102,7 @@ export const useCvStore = create<CvStoreState>((set, get) => ({
   jobDescription: null,
   jobMatcherResults: null,
   editorMode: "form",
+  language: detectLanguage(),
   matcherCollapsed: true,
   externalYamlRevision: 0,
 
@@ -131,6 +151,15 @@ export const useCvStore = create<CvStoreState>((set, get) => ({
     }
   },
 
+  setLanguage: (language) => {
+    set({ language });
+    try {
+      localStorage.setItem(LANGUAGE_KEY, language);
+    } catch {
+      // Ignore localStorage errors
+    }
+  },
+
   setMatcherCollapsed: (collapsed) => set({ matcherCollapsed: collapsed }),
 
   loadExample: (yaml) => {
@@ -167,6 +196,10 @@ export const useCvStore = create<CvStoreState>((set, get) => ({
       const savedMode = localStorage.getItem(EDITOR_MODE_KEY);
       if (savedMode === "form" || savedMode === "yaml") {
         set({ editorMode: savedMode, matcherCollapsed: savedMode === "form" });
+      }
+      const savedLang = localStorage.getItem(LANGUAGE_KEY);
+      if (savedLang === "en" || savedLang === "es") {
+        set({ language: savedLang });
       }
     } catch {
       // Ignore localStorage errors

@@ -4,6 +4,7 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { useCvStore } from "@/store/cvStore";
+import { useT } from "@/i18n";
 
 interface DateFieldProps {
   value: string;
@@ -25,6 +26,7 @@ export function DateField({
   allowPresent = false,
 }: DateFieldProps) {
   const externalRevision = useCvStore((s) => s.externalYamlRevision);
+  const t = useT();
   const [local, setLocal] = useState(value);
   const [focused, setFocused] = useState(false);
   const lastEmittedRef = useRef(value);
@@ -45,7 +47,7 @@ export function DateField({
   };
 
   const fullHint = allowPresent
-    ? `${hint ?? "YYYY | YYYY-MM | YYYY-MM-DD"} · "present" for current`
+    ? `${hint ?? "YYYY | YYYY-MM | YYYY-MM-DD"} · ${t('"present" for current')}`
     : hint;
 
   return (

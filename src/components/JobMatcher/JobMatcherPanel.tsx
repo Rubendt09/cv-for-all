@@ -5,6 +5,7 @@
  */
 import { useCallback } from "react";
 import { useCvStore } from "@/store/cvStore";
+import { useT } from "@/i18n";
 import { matchJobDescription } from "@/utils/jobMatcher";
 import { JobMatcherInput } from "./JobMatcherInput";
 import { JobMatcherResults } from "./JobMatcherResults";
@@ -15,6 +16,7 @@ export function JobMatcherPanel() {
   const setJobDescription = useCvStore((s) => s.setJobDescription);
   const jobMatcherResults = useCvStore((s) => s.jobMatcherResults);
   const setJobMatcherResults = useCvStore((s) => s.setJobMatcherResults);
+  const t = useT();
 
   const handleAnalyze = useCallback(() => {
     const desc = useCvStore.getState().jobDescription;
@@ -32,7 +34,7 @@ export function JobMatcherPanel() {
       {/* Toolbar */}
       <div className="flex items-center justify-between border-b border-line bg-paper-raised px-4 py-2">
         <span className="font-mono text-sm text-ink-faint">
-          # job matcher
+          {t("# job matcher")}
         </span>
       </div>
 
@@ -54,8 +56,9 @@ export function JobMatcherPanel() {
 
           {!jobMatcherResults && (
             <p className="font-mono text-sm text-ink-faint">
-              # paste a job description and click Analyze to see how your CV
-              matches.
+              {t(
+                "# paste a job description and click Analyze to see how your CV matches.",
+              )}
             </p>
           )}
         </div>

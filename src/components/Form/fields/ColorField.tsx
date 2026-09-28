@@ -8,6 +8,7 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { useCvStore } from "@/store/cvStore";
+import { useT } from "@/i18n";
 
 interface ColorFieldProps {
   value: string;
@@ -53,6 +54,7 @@ export function ColorField({
   id,
 }: ColorFieldProps) {
   const externalRevision = useCvStore((s) => s.externalYamlRevision);
+  const t = useT();
   const [local, setLocal] = useState(value);
   const [focused, setFocused] = useState(false);
   const lastEmittedRef = useRef(value);
@@ -89,7 +91,7 @@ export function ColorField({
           type="color"
           value={hex ?? "#000000"}
           onChange={(e) => emit(hexToRgb(e.target.value))}
-          title="Pick a color"
+          title={t("Pick a color")}
           className="h-8 w-9 shrink-0 cursor-pointer rounded border border-line bg-paper p-0.5"
         />
         <input

@@ -3,6 +3,7 @@
  * The ErrorPanel is shared between both modes and shown below.
  */
 import { useCvStore } from "@/store/cvStore";
+import { useT } from "@/i18n";
 import { YamlEditor } from "./YamlEditor";
 import { ErrorPanel } from "./ErrorPanel";
 import { CvForm } from "@/components/Form/CvForm";
@@ -13,6 +14,7 @@ export function EditorPanel() {
   const yamlString = useCvStore((s) => s.yamlString);
   const setYaml = useCvStore((s) => s.setYaml);
   const errors = useCvStore((s) => s.errors);
+  const t = useT();
 
   return (
     <div className="flex h-full flex-col">
@@ -27,7 +29,7 @@ export function EditorPanel() {
               : "text-ink-soft hover:text-ink"
           }`}
         >
-          Form
+          {t("Form")}
         </button>
         <button
           type="button"

@@ -2,19 +2,24 @@
  * Error panel — displays validation errors with line/column info.
  */
 import type { ParseError } from "@/yaml/parser";
+import { useT } from "@/i18n";
 
 interface ErrorPanelProps {
   errors: ParseError[];
 }
 
 export function ErrorPanel({ errors }: ErrorPanelProps) {
+  const t = useT();
   if (errors.length === 0) return null;
 
   return (
     <div className="max-h-48 overflow-y-auto border-t border-line bg-error-soft px-4 py-2">
       <div className="mb-1 flex items-center gap-2">
         <span className="font-mono text-sm font-semibold text-error">
-          # {errors.length} {errors.length === 1 ? "error" : "errors"}
+          #{" "}
+          {errors.length === 1
+            ? t("1 error")
+            : t("{n} errors", { n: errors.length })}
         </span>
       </div>
       <ul className="space-y-1">
@@ -24,7 +29,7 @@ export function ErrorPanel({ errors }: ErrorPanelProps) {
             className="flex items-start gap-2 text-sm text-error"
           >
             <span className="mt-0.5 flex-shrink-0 rounded border border-error/30 px-1.5 py-0.5 font-mono text-xs font-medium text-error">
-              {error.kind}
+              {t(error.kind)}
             </span>
             <span>
               {error.line !== undefined && (

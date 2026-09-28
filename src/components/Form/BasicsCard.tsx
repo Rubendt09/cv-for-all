@@ -5,6 +5,7 @@
  */
 import { useMemo } from "react";
 import { useCvStore } from "@/store/cvStore";
+import { useT } from "@/i18n";
 import {
   loadDoc,
   getCvBasics,
@@ -19,6 +20,7 @@ export function BasicsCard() {
   const yamlString = useCvStore((s) => s.yamlString);
   const setYaml = useCvStore((s) => s.setYaml);
   const errors = useCvStore((s) => s.errors);
+  const t = useT();
 
   const basics = useMemo(() => {
     const { doc } = loadDoc(yamlString);
@@ -42,55 +44,55 @@ export function BasicsCard() {
   };
 
   return (
-    <Card title="Header" defaultOpen>
+    <Card title={t("Header")} defaultOpen>
       <div className="flex flex-col gap-3">
         <TextField
-          label="Name"
+          label={t("Name")}
           value={basics.name}
           onChange={(v) => updateScalar("name", v)}
-          placeholder="Jane Doe"
+          placeholder={t("Jane Doe")}
           error={errorFor("cv.name")}
         />
         <TextField
-          label="Headline"
+          label={t("Headline")}
           value={basics.headline}
           onChange={(v) => updateScalar("headline", v)}
-          placeholder="Software Engineer"
+          placeholder={t("Software Engineer")}
           error={errorFor("cv.headline")}
         />
         <TextField
-          label="Location"
+          label={t("Location")}
           value={basics.location}
           onChange={(v) => updateScalar("location", v)}
-          placeholder="San Francisco, CA"
+          placeholder={t("San Francisco, CA")}
           error={errorFor("cv.location")}
         />
         <StringListField
-          label="Email"
+          label={t("Email")}
           values={basics.email}
           onChange={(v) => updateList("email", v)}
-          placeholder="jane@example.com"
+          placeholder={t("jane@example.com")}
           error={errorFor("cv.email")}
         />
         <StringListField
-          label="Phone"
+          label={t("Phone")}
           values={basics.phone}
           onChange={(v) => updateList("phone", v)}
-          placeholder="+1 555 555 5555"
+          placeholder={t("+1 555 555 5555")}
           error={errorFor("cv.phone")}
         />
         <StringListField
-          label="Website"
+          label={t("Website")}
           values={basics.website}
           onChange={(v) => updateList("website", v)}
-          placeholder="https://jane.com"
+          placeholder={t("https://jane.com")}
           error={errorFor("cv.website")}
         />
         <TextField
-          label="Photo (URL or base64)"
+          label={t("Photo (URL or base64)")}
           value={basics.photo}
           onChange={(v) => updateScalar("photo", v)}
-          placeholder="https://… or data:image/…"
+          placeholder={t("https://… or data:image/…")}
           error={errorFor("cv.photo")}
           monospace
         />
